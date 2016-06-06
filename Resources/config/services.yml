@@ -1,0 +1,8 @@
+services:
+    garant_file_preview_generator.remote_client:
+        class: Garant\FilePreviewGeneratorBundle\Client\RemoteClient
+        calls:
+            - [setContainer, ["@service_container"]]
+
+    garant_file_preview_generator.libreoffice_generator:
+        class: Garant\FilePreviewGeneratorBundle\Generator\LibreOfficeGenerator
