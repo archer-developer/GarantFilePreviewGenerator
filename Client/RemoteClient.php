@@ -23,7 +23,7 @@ class RemoteClient extends AbstractGenerator
 {
     use ContainerAwareTrait;
 
-    const BUFFER_SIZE = 268435456; // 256Kb
+    const BUFFER_SIZE = 262144; // 256Kb
 
     /**
      * @param \SplFileObject $file

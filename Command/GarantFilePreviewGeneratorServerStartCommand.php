@@ -16,7 +16,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
 {
-    const BUFFER_SIZE = 268435456; // 256Kb
+    const BUFFER_SIZE = 262144; // 256Kb
 
     protected function configure()
     {
