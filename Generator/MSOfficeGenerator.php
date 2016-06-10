@@ -25,7 +25,7 @@ class MSOfficeGenerator extends AbstractGenerator
         $fileout = tempnam(sys_get_temp_dir(), $orig_path ) . '.pdf';
 
         $word = new \COM("Word.Application") or die ("Невозможно создать COM объект");
-        $word->Documents->Open($orig_path);
+        $word->Documents->Open($orig_path, false, true);
 
         //$word->ActiveDocument->SaveAs($fileout, 8);
         $word->ActiveDocument->ExportAsFixedFormat($fileout, 17, false, 0, 0, 0, 0, 7, true, true, 2, true, true, false);
