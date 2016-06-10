@@ -6,3 +6,6 @@ services:
 
     garant_file_preview_generator.libreoffice_generator:
         class: Garant\FilePreviewGeneratorBundle\Generator\LibreOfficeGenerator
+
+    garant_file_preview_generator.msoffice_generator:
+          class: Garant\FilePreviewGeneratorBundle\Generator\MSOfficeGenerator
