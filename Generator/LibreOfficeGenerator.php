@@ -34,6 +34,10 @@ class LibreOfficeGenerator extends AbstractGenerator
             if(!file_exists($pdf_path) || $process->getExitCode() > 0){
                 return false;
             }
+
+            if($this->out_format == self::PREVIEW_FORMAT_PDF){
+                return new \SplFileObject($pdf_path);
+            }
         }
         else{
             $pdf_path = $orig_path;
