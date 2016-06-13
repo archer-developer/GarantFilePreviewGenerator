@@ -22,27 +22,35 @@ class MSOfficeGenerator extends AbstractGenerator
         $file->rewind();
 
         $orig_path = $file->getRealPath();
-        $fileout = tempnam(sys_get_temp_dir(), $orig_path ) . '.pdf';
+        $fileout_pdf = tempnam(sys_get_temp_dir(), $orig_path ) . '.pdf';
+        $fileout_preview = $orig_path . '.' . $this->out_format;
 
-        $word = new \COM("Word.Application") or die ("Невозможно создать COM объект");
-        $word->Documents->Open($orig_path, false, true);
+        if(!in_array(strtolower($file->getExtension()), self::IMAGE_EXTENSIONS)) {
+            $word = new \COM("Word.Application") or die ("Невозможно создать COM объект");
+            $word->Documents->Open($orig_path, false, true);
 
-        //$word->ActiveDocument->SaveAs($fileout, 8);
-        $word->ActiveDocument->ExportAsFixedFormat($fileout, 17, false, 0, 0, 0, 0, 7, true, true, 2, true, true, false);
-        $word->Quit();
+            //$word->ActiveDocument->SaveAs($fileout, 8);
+            $word->ActiveDocument->ExportAsFixedFormat($fileout_pdf, 17, false, 0, 0, 0, 0, 7, true, true, 2, true, true, false);
+            $word->Quit();
 
-        $fileout_preview = $fileout . '.' . $this->out_format;
+            if($this->out_format == self::PREVIEW_FORMAT_PDF){
+                return new \SplFileObject($fileout_pdf);
+            }
+        }
+        else{
+            $fileout_pdf = $orig_path;
+        }
 
         $im = new \Imagick();
 
         $im->setResolution($this->thumbnail_width, $this->thumbnail_width);
         $im->setCompressionQuality($this->quality);
-        $im->readimage($fileout.'[0]');
+        $im->readimage($fileout_pdf.'[0]');
         $im->setImageFormat($this->out_format);
         $im->writeImage($fileout_preview);
         $im->clear();
         $im->destroy();
 
-        return new \SplFileObject($fileout);
+        return new \SplFileObject($fileout_preview);
     }
 }

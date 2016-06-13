@@ -16,6 +16,7 @@ abstract class AbstractGenerator
 {
     const PREVIEW_FORMAT_JPEG = 'jpeg';
     const PREVIEW_FORMAT_PNG  = 'png';
+    const PREVIEW_FORMAT_PDF  = 'pdf';
 
     // Preview output format
     protected $out_format = self::PREVIEW_FORMAT_JPEG;
