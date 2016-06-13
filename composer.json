@@ -9,6 +9,7 @@
         }
     ],
     "require": {
+        "ext-imagick": "*",
         "react/http": "^0.5@dev",
         "guzzlehttp/guzzle": "dev-master"
     },

@@ -31,6 +31,18 @@ class MSOfficeGenerator extends AbstractGenerator
         $word->ActiveDocument->ExportAsFixedFormat($fileout, 17, false, 0, 0, 0, 0, 7, true, true, 2, true, true, false);
         $word->Quit();
 
+        $fileout_preview = $fileout . '.' . $this->out_format;
+
+        $im = new \Imagick();
+
+        $im->setResolution($this->thumbnail_width, $this->thumbnail_width);
+        $im->setCompressionQuality($this->quality);
+        $im->readimage($fileout.'[0]');
+        $im->setImageFormat($this->out_format);
+        $im->writeImage($fileout_preview);
+        $im->clear();
+        $im->destroy();
+
         return new \SplFileObject($fileout);
     }
 }
