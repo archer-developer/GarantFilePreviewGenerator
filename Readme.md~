@@ -1,7 +1,7 @@
 # File Preview Generator Bundle #
 
 This bundle provides classes to generate preview image for office files like .doc, .docx, .xls and others. 
-It contains client and server that lets use it both locally and remotely.
+It contains client and server that let use the bundle both locally and remotely.
 
 ## Installation
 
@@ -37,7 +37,7 @@ You can add remote servers:
         # Available algorithms: random, round_robin
         #server_select_algorithm: random
         #
-        # Remote servers to generate file preview
+        # Remote servers are used to generate file preview
         # To start generator server use "garant:file-preview-generator:server-start" command
         #servers:
         #    local_unix:
@@ -65,5 +65,14 @@ To generate preview you can use generator service. Available services:
 
 ### Example
 
+    $temp_file = new \SplFileObject('test.docx');
 
+    $generator = $this->container->get('garant_file_preview_generator.libreoffice_generator');
+    $temp_preview_file = $generator->generate($temp_file);
+    if(!$temp_preview_file){
+        $this->get('logger')->err('Preview attachment: Preview generation error');
+        throw new \RuntimeException('Preview generation error');
+    }
+    
+    dump($temp_preview_file);
   
