@@ -60,6 +60,8 @@ class LibreOfficeGenerator extends AbstractGenerator
             unlink($pdf_path);
         }
 
+        $preview_path = $this->postProcess($preview_path);
+
         return new \SplFileObject($preview_path);
     }
 }

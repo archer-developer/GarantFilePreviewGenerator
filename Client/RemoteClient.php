@@ -40,7 +40,7 @@ class RemoteClient extends AbstractGenerator
             ->addHeader('Content-Type', 'multipart/form-data')
             ->setPostField('out_format', $this->out_format)
             ->setPostField('quality', $this->quality)
-            ->setPostField('thumbnail_width', $this->thumbnail_width)
+            ->setPostField('filter', $this->filter)
             ->setPostField('file_name', $file->getFilename())
             ->addPostFile('file', $file->getRealPath())
         ;

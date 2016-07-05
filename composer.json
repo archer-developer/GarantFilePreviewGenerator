@@ -11,6 +11,7 @@
     "require": {
         "ext-imagick": "*",
         "react/http": "^0.5@dev",
+        "liip/imagine-bundle": "dev-master",
         "guzzlehttp/guzzle": "dev-master"
     },
     "autoload": {

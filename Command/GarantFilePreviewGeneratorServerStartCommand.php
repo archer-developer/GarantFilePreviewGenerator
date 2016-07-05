@@ -81,8 +81,8 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                 if(isset($request->getPost()['quality'])){
                     $generator->setQuality($request->getPost()['quality']);
                 }
-                if(isset($request->getPost()['thumbnail_width'])){
-                    $generator->setThumbnailWidth($request->getPost()['thumbnail_width']);
+                if(isset($request->getPost()['filter'])){
+                    $generator->setFilter($request->getPost()['filter']);
                 }
 
                 $preview = $generator->generate($temp_file);

@@ -24,7 +24,11 @@ abstract class AbstractGenerator
     // JPEG quality
     protected $quality = 100;
 
-    protected $thumbnail_width = 1200;
+    // LiipImagine filter to post processing
+    protected $filter;
+
+    // Base preview width in pixels
+    protected $thumbnail_width = 800;
 
     // Skip to pdf converting
     const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'bmp'];
@@ -44,11 +48,12 @@ abstract class AbstractGenerator
     }
 
     /**
-     * @param $width
+     * Set LiipImagine filter to post process
+     * @param $filter
      */
-    public function setThumbnailWidth($width)
+    public function setFilter($filter)
     {
-        $this->thumbnail_width = $width;
+        $this->filter = $filter;
     }
 
     /**
@@ -57,5 +62,16 @@ abstract class AbstractGenerator
     public function setOutFormat($format)
     {
         $this->out_format = $format;
+    }
+
+    protected function postProcess($path)
+    {
+        if(!$this->filter){
+            return $path;
+        }
+
+
+
+        return $path;
     }
 }

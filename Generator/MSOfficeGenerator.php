@@ -51,6 +51,8 @@ class MSOfficeGenerator extends AbstractGenerator
         $im->clear();
         $im->destroy();
 
+        $fileout_preview = $this->postProcess($fileout_preview);
+
         return new \SplFileObject($fileout_preview);
     }
 }
