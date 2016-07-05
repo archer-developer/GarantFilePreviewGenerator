@@ -22,6 +22,8 @@ This bundle can be installed using [composer](https://getcomposer.org/):
         $bundles = array(
     
             // ...
+            new Liip\ImagineBundle\LiipImagineBundle(),
+            // ...
             new Garant\GarantFilePreviewGeneratorBundle\GarantFilePreviewGeneratorBundle(),
         );
     
@@ -47,7 +49,15 @@ You can add remote servers:
         #    remote_windows:
         #        ip: 192.168.10.201
         #        port: 9010
-                
+        
+Optionally you can configure liip imagine filters to post process preview images:
+
+    liip_imagine:
+        filter_sets:
+            avatar_square:
+                filters:
+                    # Transforms 150x140 to 120x120, while cropping the width
+                    thumbnail: { size: [120, 120], mode: outbound }
 
 ### Console commands
 
@@ -75,4 +85,8 @@ To generate preview you can use generator service. Available services:
     }
     
     dump($temp_preview_file);
-  
+    
+    // Generate filtered preview
+    $temp_preview_file = $generator->generate($temp_file, 'avatar_square');
+    
+    dump($temp_preview_file);
