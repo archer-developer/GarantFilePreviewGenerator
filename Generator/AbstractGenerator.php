@@ -22,7 +22,7 @@ abstract class AbstractGenerator
     const PREVIEW_FORMAT_PDF  = 'pdf';
 
     // Preview output format
-    protected $out_format = self::PREVIEW_FORMAT_PNG;
+    protected $out_format = self::PREVIEW_FORMAT_JPEG;
 
     // JPEG quality
     protected $quality = 100;

@@ -43,7 +43,7 @@ class MSOfficeGenerator extends AbstractGenerator
 
         $im = new \Imagick();
 
-        $im->setResolution($this->thumbnail_width, $this->thumbnail_width);
+        //$im->setResolution($this->thumbnail_width, $this->thumbnail_width);
         $im->setCompressionQuality($this->quality);
         $im->readimage($fileout_pdf.'[0]');
         $im->setImageFormat($this->out_format);

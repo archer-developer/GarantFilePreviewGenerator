@@ -44,16 +44,15 @@ class LibreOfficeGenerator extends AbstractGenerator
         }
 
         // Create first page screen shot
-        $convert_cmd = "convert -thumbnail x{$this->thumbnail_width} -density 150 -quality {$this->quality} -background white -alpha remove";
-        $process = new Process($convert_cmd . " {$pdf_path}[0] " . $preview_path);
-        $process->run();
-        if(!file_exists($preview_path) || $process->getExitCode() > 0){
-            // Remove temp files
-            if(file_exists($pdf_path)){
-                unlink($pdf_path);
-            }
-            return false;
-        }
+        $im = new \Imagick();
+
+        //$im->setResolution($this->thumbnail_width, $this->thumbnail_width);
+        $im->setCompressionQuality($this->quality);
+        $im->readimage($pdf_path.'[0]');
+        $im->setImageFormat($this->out_format);
+        $im->writeImage($preview_path);
+        $im->clear();
+        $im->destroy();
 
         // Remove temp files
         if(file_exists($pdf_path)){
