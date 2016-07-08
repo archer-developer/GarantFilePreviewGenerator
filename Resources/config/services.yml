@@ -1,14 +1,21 @@
+parameters:
+    garant_file_preview_generator.binary.loader.filesystem_class: Garant\FilePreviewGeneratorBundle\Binary\Loader\FileSystemLoader
+
 services:
+    garant_file_preview_generator.binary.loader.filesystem:
+        class: '%garant_file_preview_generator.binary.loader.filesystem_class%'
+        arguments: ['@liip_imagine.mime_type_guesser', '@liip_imagine.extension_guesser', ~]
+
     garant_file_preview_generator.remote_client:
         class: Garant\FilePreviewGeneratorBundle\Client\RemoteClient
-        arguments: ["@liip_imagine.filter.manager", "@liip_imagine.binary.loader.prototype.filesystem"]
+        arguments: ["@liip_imagine.filter.manager", "@garant_file_preview_generator.binary.loader.filesystem"]
         calls:
             - [setContainer, ["@service_container"]]
 
     garant_file_preview_generator.libreoffice_generator:
         class: Garant\FilePreviewGeneratorBundle\Generator\LibreOfficeGenerator
-        arguments: ["@liip_imagine.filter.manager", "@liip_imagine.binary.loader.prototype.filesystem"]
+        arguments: ["@liip_imagine.filter.manager", "@garant_file_preview_generator.binary.loader.filesystem"]
 
     garant_file_preview_generator.msoffice_generator:
           class: Garant\FilePreviewGeneratorBundle\Generator\MSOfficeGenerator
-          arguments: ["@liip_imagine.filter.manager", "@liip_imagine.binary.loader.prototype.filesystem"]
+          arguments: ["@liip_imagine.filter.manager", "@garant_file_preview_generator.binary.loader.filesystem"]

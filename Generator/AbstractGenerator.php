@@ -7,6 +7,7 @@
  */
 
 namespace Garant\FilePreviewGeneratorBundle\Generator;
+
 use Liip\ImagineBundle\Binary\Loader\LoaderInterface;
 use Liip\ImagineBundle\Imagine\Filter\FilterManager;
 use Liip\ImagineBundle\Model\Binary;
