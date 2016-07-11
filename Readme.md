@@ -64,12 +64,14 @@ Optionally you can configure liip imagine filters to post process preview images
 If remote server is configured you can start it. Call this command on remote server:
 
     bin/console garant:file-preview-generator:server-start <server_name>
+    
+Also you can start server with -vvv flag to check memory usage.
   
 ### Services
 
 To generate preview you can use generator service. Available services:
 
-    garant_file_preview_generator.remote_client - Remote client 
+    garant_file_preview_generator.remote_client - Remote client. 
     garant_file_preview_generator.libreoffice_generator - Local generator based on LibreOffice
     garant_file_preview_generator.msoffice_generator - Local generator based on MS Office and COM 
 
