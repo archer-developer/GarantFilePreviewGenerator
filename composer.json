@@ -1,7 +1,8 @@
 {
     "name": "garant/file-preview-generator-bundle",
-    "description": "This bundle provides classes to generate preview image for office files like .doc, .docx, .xls and others. It contains client and server that lets use it both locally and remotely",
+    "description": "This Symfony bundle provides classes to generate preview image for office files like .doc, .docx, .xls and others. It contains client and server that lets use it both locally and remotely",
     "license": "MIT",
+    "homepage": "https://github.com/archer-developer/GarantFilePreviewGenerator",
     "authors": [
         {
             "name": "Alexander Samusevich",
@@ -9,10 +10,12 @@
         }
     ],
     "require": {
+        "php": "^5.3.9|^7.0",
         "ext-imagick": "*",
         "react/http": "^0.5@dev",
         "liip/imagine-bundle": "dev-master",
-        "guzzlehttp/guzzle": "dev-master"
+        "guzzlehttp/guzzle": "dev-master",
+        "symfony/framework-bundle": "~2.3|~3.0"
     },
     "autoload": {
         "psr-4": { "Garant\\FilePreviewGeneratorBundle\\": "" }
