@@ -13,7 +13,7 @@
     ],
     "require": {
         "ext-imagick": "*",
-        "react/http": "^0.5@dev",
+        "react/http": "dev-master",
         "liip/imagine-bundle": "^1.5",
         "guzzlehttp/guzzle": "^6.2"
     },
