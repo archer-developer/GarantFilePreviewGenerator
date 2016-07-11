@@ -1,4 +1,8 @@
 parameters:
+    garant_file_preview_generator.remote_client.connect_timeout: 5
+    garant_file_preview_generator.remote_client.class: Garant\FilePreviewGeneratorBundle\Client\RemoteClient
+    garant_file_preview_generator.libreoffice_generator.class: Garant\FilePreviewGeneratorBundle\Generator\LibreOfficeGenerator
+    garant_file_preview_generator.msoffice_generator.class: Garant\FilePreviewGeneratorBundle\Generator\MSOfficeGenerator
     garant_file_preview_generator.binary.loader.filesystem_class: Garant\FilePreviewGeneratorBundle\Binary\Loader\FileSystemLoader
 
 services:
@@ -7,15 +11,15 @@ services:
         arguments: ['@liip_imagine.mime_type_guesser', '@liip_imagine.extension_guesser', ~]
 
     garant_file_preview_generator.remote_client:
-        class: Garant\FilePreviewGeneratorBundle\Client\RemoteClient
+        class: '%garant_file_preview_generator.remote_client.class%'
         arguments: ["@liip_imagine.filter.manager", "@garant_file_preview_generator.binary.loader.filesystem"]
         calls:
             - [setContainer, ["@service_container"]]
 
     garant_file_preview_generator.libreoffice_generator:
-        class: Garant\FilePreviewGeneratorBundle\Generator\LibreOfficeGenerator
+        class: '%garant_file_preview_generator.libreoffice_generator.class%'
         arguments: ["@liip_imagine.filter.manager", "@garant_file_preview_generator.binary.loader.filesystem"]
 
     garant_file_preview_generator.msoffice_generator:
-          class: Garant\FilePreviewGeneratorBundle\Generator\MSOfficeGenerator
+          class: '%garant_file_preview_generator.msoffice_generator.class%'
           arguments: ["@liip_imagine.filter.manager", "@garant_file_preview_generator.binary.loader.filesystem"]

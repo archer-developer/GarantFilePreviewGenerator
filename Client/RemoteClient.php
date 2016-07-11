@@ -36,6 +36,8 @@ class RemoteClient extends AbstractGenerator
         $server = $availableServers[$serverNames[rand(0, count($serverNames) - 1)]];
 
         $client = new Client('http://' . $server['ip'] . ':' . $server['port']);
+        $client->setDefaultOption('connect_timeout', $this->container->getParameter('garant_file_preview_generator.remote_client.connect_timeout'));
+
         $request = $client->post()
             ->addHeader('Content-Type', 'multipart/form-data')
             ->setPostField('out_format', $this->out_format)

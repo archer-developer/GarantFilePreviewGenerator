@@ -126,8 +126,8 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
             }
         });
 
-        $socket->listen($availableServers[$server]['port']);
-        $this->io->success('Preview generator is started on port ' . $availableServers[$server]['port']);
+        $socket->listen($availableServers[$server]['port'], $availableServers[$server]['ip']);
+        $this->io->success('Preview generator is started on port ' . $availableServers[$server]['port'] . ' on host ' . $availableServers[$server]['ip']);
 
         $this->logMemoryUsage();
 
