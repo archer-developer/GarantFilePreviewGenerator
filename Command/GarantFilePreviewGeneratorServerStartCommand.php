@@ -3,6 +3,7 @@
 namespace Garant\FilePreviewGeneratorBundle\Command;
 
 use Garant\FilePreviewGeneratorBundle\Generator\AbstractGenerator;
+use React\Tests\Stream\ReadableStreamTest;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -131,7 +132,12 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
 
         $this->logMemoryUsage();
 
-        $loop->run();
+        try{
+            $loop->run();
+        }
+        catch(\InvalidArgumentException $e){
+            $this->io->error("InvalidArgumentException: " . $e->getMessage());
+        }
 
         $this->io->comment('Server is stopped');
     }
