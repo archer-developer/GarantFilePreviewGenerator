@@ -23,6 +23,9 @@ abstract class AbstractGenerator
     const PREVIEW_FORMAT_PDF  = 'pdf';
     const PREVIEW_FORMAT_HTML = 'html';
 
+    // Resolution to convert vector (like PDF) to bitmap image
+    const PDF_RESOLUTION = 288;
+
     // Preview output format
     protected $out_format = self::PREVIEW_FORMAT_JPEG;
 
@@ -31,9 +34,6 @@ abstract class AbstractGenerator
 
     // LiipImagine filter to post processing
     protected $filter;
-
-    // Base preview width in pixels
-    protected $thumbnail_width = 800;
 
     /**
      * @var FilterManager $filter_manager
@@ -117,13 +117,17 @@ abstract class AbstractGenerator
     /**
      * @param $file_path
      * @param $preview_path
+     * @param $resolution
      * @return string
      */
-    protected function generatePreview($file_path, $preview_path)
+    protected function generatePreview($file_path, $preview_path, $resolution = null)
     {
         // Create first page screen shot
         $im = new \Imagick();
 
+        if($resolution){
+            $im->setResolution($resolution, $resolution);
+        }
         $im->setCompressionQuality($this->quality);
         $im->readimage($file_path);
         $im->setImageFormat($this->out_format);
