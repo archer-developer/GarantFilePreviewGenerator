@@ -21,6 +21,7 @@ abstract class AbstractGenerator
     const PREVIEW_FORMAT_JPEG = 'jpeg';
     const PREVIEW_FORMAT_PNG  = 'png';
     const PREVIEW_FORMAT_PDF  = 'pdf';
+    const PREVIEW_FORMAT_HTML = 'html';
 
     // Preview output format
     protected $out_format = self::PREVIEW_FORMAT_JPEG;
@@ -48,12 +49,6 @@ abstract class AbstractGenerator
     const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'bmp'];
 
     /**
-     * @param \SplFileObject $file
-     * @return \SplFileObject
-     */
-    abstract public function generate(\SplFileObject $file);
-
-    /**
      * AbstractGenerator constructor.
      * @param FilterManager $filter_manager
      * @param LoaderInterface $binary_loader
@@ -63,6 +58,63 @@ abstract class AbstractGenerator
         $this->filter_manager = $filter_manager;
         $this->binary_loader = $binary_loader;
     }
+
+    /**
+     * Generate file preview in required format
+     *
+     * @param \SplFileObject $file
+     * @return \SplFileObject
+     */
+    public function generate(\SplFileObject $file)
+    {
+        $file->rewind();
+
+        $orig_path = $file->getRealPath();
+        $preview_path = $orig_path . '.' . $this->out_format;
+
+        // Convert to image
+        if($this->isImage($this->out_format)){
+
+            // Image to image
+            if($this->isImage($file->getExtension())){
+                $preview_path = $this->generatePreview($orig_path, $preview_path);
+            }
+            // PDF to image
+            elseif($this->isPDF($file->getExtension())){
+                $preview_path = $this->generatePreview($orig_path.'[0]', $preview_path);
+            }
+            // Other format to image
+            else{
+                $pdf_path = $this->convert($orig_path, self::PREVIEW_FORMAT_PDF);
+                $preview_path = $this->generatePreview($pdf_path.'[0]', $preview_path);
+                // Remove temp files
+                if(file_exists($pdf_path)){
+                    unlink($pdf_path);
+                }
+            }
+
+            return new \SplFileObject($preview_path);
+        }
+        // Convert to PDF
+        elseif($this->isPdf($this->out_format)){
+            $pdf_path = $this->convert($orig_path, self::PREVIEW_FORMAT_PDF);
+            return new \SplFileObject($pdf_path);
+        }
+
+        // Convert something to something
+        $preview_path = $this->convert($orig_path, $this->out_format);
+
+        return new \SplFileObject($preview_path);
+    }
+
+    /**
+     * Convert something to something
+     *
+     * @param $orig_path
+     * @param $out_format
+     * @return mixed
+     */
+    abstract protected function convert($orig_path, $out_format);
 
     /**
      * @param $quality
@@ -109,5 +161,45 @@ abstract class AbstractGenerator
         file_put_contents($path, $binary->getContent());
 
         return $path;
+    }
+
+    /**
+     * @param $file_path
+     * @param $preview_path
+     * @return string
+     */
+    protected function generatePreview($file_path, $preview_path)
+    {
+        // Create first page screen shot
+        $im = new \Imagick();
+
+        $im->setCompressionQuality($this->quality);
+        $im->readimage($file_path);
+        $im->setImageFormat($this->out_format);
+        $im->writeImage($preview_path);
+        $im->clear();
+        $im->destroy();
+
+        $preview_path = $this->postProcess($preview_path);
+
+        return $preview_path;
+    }
+
+    /**
+     * @param $ext
+     * @return bool
+     */
+    protected function isImage($ext)
+    {
+        return in_array(strtolower($ext), self::IMAGE_EXTENSIONS);
+    }
+
+    /**
+     * @param $ext
+     * @return bool
+     */
+    protected function isPDF($ext)
+    {
+        return strtolower($ext) == self::PREVIEW_FORMAT_PDF;
     }
 }

@@ -16,51 +16,17 @@ use Symfony\Component\Process\Process;
  */
 class LibreOfficeGenerator extends AbstractGenerator
 {
-    /**
-     * @inheritdoc
-     */
-    public function generate(\SplFileObject $file)
+    protected function convert($orig_path, $out_format)
     {
-        $file->rewind();
+        $out_path = $orig_path . '.' . $out_format;
 
-        $orig_path = $file->getRealPath();
-        $pdf_path = $orig_path . '.pdf';
-        $preview_path = $orig_path . '.' . $this->out_format;
-
-        if(!in_array(strtolower($file->getExtension()), self::IMAGE_EXTENSIONS)){
-            // Generate PDF from source file
-            $process = new Process("unoconv -f pdf -o {$pdf_path} {$orig_path}");
-            $process->run();
-            if(!file_exists($pdf_path) || $process->getExitCode() > 0){
-                return false;
-            }
-
-            if($this->out_format == self::PREVIEW_FORMAT_PDF){
-                return new \SplFileObject($pdf_path);
-            }
-        }
-        else{
-            $pdf_path = $orig_path;
+        // Generate PDF from source file
+        $process = new Process("unoconv -f {$out_format} -o {$out_path} {$orig_path}");
+        $process->run();
+        if(!file_exists($out_path) || $process->getExitCode() > 0){
+            return false;
         }
 
-        // Create first page screen shot
-        $im = new \Imagick();
-
-        //$im->setResolution($this->thumbnail_width, $this->thumbnail_width);
-        $im->setCompressionQuality($this->quality);
-        $im->readimage($pdf_path.'[0]');
-        $im->setImageFormat($this->out_format);
-        $im->writeImage($preview_path);
-        $im->clear();
-        $im->destroy();
-
-        // Remove temp files
-        if(file_exists($pdf_path)){
-            unlink($pdf_path);
-        }
-
-        $preview_path = $this->postProcess($preview_path);
-
-        return new \SplFileObject($preview_path);
+        return $out_path;
     }
 }
