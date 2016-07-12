@@ -109,7 +109,9 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
             }
             finally{
                 if($temp_file->getRealPath()){
-                    unlink($temp_file->getRealPath());
+                    $path = $temp_file->getRealPath();
+                    $temp_file = null;
+                    unlink($path);
                 }
             }
 
@@ -123,7 +125,9 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
             $response->end();
 
             if($preview->getRealPath()){
-                unlink($preview->getRealPath());
+                $path = $preview->getRealPath();
+                $preview = null;
+                unlink($path);
             }
         });
 
