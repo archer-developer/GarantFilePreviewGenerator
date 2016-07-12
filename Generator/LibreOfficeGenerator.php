@@ -14,7 +14,7 @@ use Symfony\Component\Process\Process;
  * Class LibreOfficeGenerator
  * @package Garant\FilePreviewGeneratorBundle\Generator
  */
-class LibreOfficeGenerator extends AbstractGenerator
+class LibreOfficeGenerator extends AbstractOfficeGenerator
 {
     protected function convert($orig_path, $out_format)
     {

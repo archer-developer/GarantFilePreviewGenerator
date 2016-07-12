@@ -12,7 +12,7 @@ namespace Garant\FilePreviewGeneratorBundle\Generator;
  * Class MSOfficeGenerator
  * @package Garant\FilePreviewGeneratorBundle\Generator
  */
-class MSOfficeGenerator extends AbstractGenerator
+class MSOfficeGenerator extends AbstractOfficeGenerator
 {
     const MS_FORMATS = [
         self::PREVIEW_FORMAT_PDF => 17,
