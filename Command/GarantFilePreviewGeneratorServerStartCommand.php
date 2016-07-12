@@ -77,7 +77,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
             }
 
             $out_format = AbstractGenerator::PREVIEW_FORMAT_JPEG;
-            if(!isset($request->getPost()['out_format'])){
+            if(!empty($request->getPost()['out_format'])){
                 $out_format = $request->getPost()['out_format'];
             }
 
