@@ -41,7 +41,7 @@ abstract class AbstractOfficeGenerator extends AbstractGenerator
             // Other format to image
             else{
                 $pdf_path = $this->convert($orig_path, self::PREVIEW_FORMAT_PDF);
-                $preview_path = $this->generatePreview($pdf_path.'[0]', $preview_path, self::PDF_RESOLUTION);
+				$preview_path = $this->generatePreview($pdf_path.'[0]', $preview_path, self::PDF_RESOLUTION);
                 // Remove temp files
                 if(file_exists($pdf_path)){
                     unlink($pdf_path);

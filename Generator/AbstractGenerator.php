@@ -12,6 +12,8 @@ use Liip\ImagineBundle\Binary\Loader\LoaderInterface;
 use Liip\ImagineBundle\Imagine\Filter\FilterManager;
 use Liip\ImagineBundle\Model\Binary;
 
+use Symfony\Component\Process\Process;
+
 /**
  * Class AbstractGenerator
  * @package Garant\FilePreviewGeneratorBundle\Generator
@@ -123,19 +125,12 @@ abstract class AbstractGenerator
     protected function generatePreview($file_path, $preview_path, $resolution = null)
     {
         // Create first page screen shot
-        $im = new \Imagick();
-
-        if($resolution){
-            $im->setResolution($resolution, $resolution);
+        $convert_cmd = "convert -density 280 -quality {$this->quality} -background white -alpha remove";
+		$process = new Process($convert_cmd . " {$file_path} " . $preview_path);
+        $process->run();
+        if(!file_exists($preview_path) || $process->getExitCode() > 0){
+            return false;
         }
-        $im->setCompressionQuality($this->quality);
-        $im->readimage($file_path);
-        $im->setImageFormat($this->out_format);
-        $im->writeImage($preview_path);
-        $im->clear();
-        $im->destroy();
-
-        $preview_path = $this->postProcess($preview_path);
 
         return $preview_path;
     }

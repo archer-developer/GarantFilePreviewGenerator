@@ -111,7 +111,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                 if($temp_file->getRealPath()){
                     $path = $temp_file->getRealPath();
                     $temp_file = null;
-                    unlink($path);
+                    @unlink($path);
                 }
             }
 

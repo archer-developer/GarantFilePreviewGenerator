@@ -39,6 +39,10 @@ class MSOfficeGenerator extends AbstractOfficeGenerator
         //$word->ActiveDocument->SaveAs($fileout, 8);
         $word->ActiveDocument->ExportAsFixedFormat($out_path, 17, false, 0, 0, 0, 0, 7, true, true, 2, true, true, false);
         $word->Quit();
+		
+		if(!file_exists($out_path)){
+			throw new \RuntimeException('PDF not created!');
+		}
 
         return $out_path;
     }
