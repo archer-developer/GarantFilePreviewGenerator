@@ -133,6 +133,8 @@ abstract class AbstractGenerator
             return false;
         }
 
+        $this->postProcess($preview_path);
+
         return $preview_path;
     }
 
