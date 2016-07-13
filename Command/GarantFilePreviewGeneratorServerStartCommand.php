@@ -51,7 +51,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
 
         $http->on('request', function(\React\Http\Request $request, \React\Http\Response $response){
 
-            $this->io->writeLn('Client accepted');
+            $this->io->writeLn('Client accepted at ' . date('h:i:s'));
             $this->logMemoryUsage();
 
             $files = $request->getFiles();
@@ -78,6 +78,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
 
             $out_format = AbstractGenerator::PREVIEW_FORMAT_JPEG;
             if(!empty($request->getPost()['out_format'])){
+                $this->debug('Set output format: ' . $request->getPost()['out_format']);
                 $out_format = $request->getPost()['out_format'];
             }
 
@@ -93,9 +94,12 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                 // Configure generator
                 $generator->setOutFormat($out_format);
                 if(isset($request->getPost()['quality'])){
+                    $this->debug('Set quality: ' . $request->getPost()['quality']);
                     $generator->setQuality($request->getPost()['quality']);
                 }
+
                 if(isset($request->getPost()['filter'])){
+                    $this->debug('Set post filter: ' . $request->getPost()['filter']);
                     $generator->setFilter($request->getPost()['filter']);
                 }
 
@@ -111,9 +115,12 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                 if($temp_file->getRealPath()){
                     $path = $temp_file->getRealPath();
                     $temp_file = null;
+                    //@todo On Windows we have permission denied warning.
                     @unlink($path);
                 }
             }
+
+            $this->debug('Send preview to client');
 
             $statusCode = 200;
             $headers = array('Content-Type: application/octet-stream');
@@ -129,6 +136,8 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                 $preview = null;
                 unlink($path);
             }
+
+            $this->debug('Client processed at ' . date('h:i:s'));
         });
 
         $socket->listen($availableServers[$server]['port'], $availableServers[$server]['ip']);
@@ -172,6 +181,17 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
         if($this->io->isDebug()) {
             $this->io->writeln('<info>Memory usage: ' . number_format(memory_get_usage() / 1024 / 1024, 2) . 'Mb</info>');
             $this->io->writeln('<info>Memory peak usage: ' . number_format(memory_get_peak_usage() / 1024 / 1024, 2) . 'Mb</info>');
+        }
+    }
+
+    /**
+     * Show debug message
+     * @param string $message
+     */
+    protected function debug($message)
+    {
+        if($this->io->isDebug()) {
+            $this->io->writeln($message);
         }
     }
 }
