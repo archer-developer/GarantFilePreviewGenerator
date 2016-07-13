@@ -24,6 +24,7 @@ abstract class AbstractGenerator
     const PREVIEW_FORMAT_PNG  = 'png';
     const PREVIEW_FORMAT_PDF  = 'pdf';
     const PREVIEW_FORMAT_HTML = 'html';
+    const PREVIEW_FORMAT_TEXT = 'txt';
 
     // Resolution to convert vector (like PDF) to bitmap image
     const PDF_RESOLUTION = 288;
