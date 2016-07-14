@@ -41,8 +41,13 @@ class RemoteClient extends AbstractGenerator
         $request = $client->post()
             ->addHeader('Content-Type', 'multipart/form-data')
             ->setPostField('out_format', $this->out_format)
-            ->setPostField('quality', $this->quality)
-            ->setPostField('filter', $this->filter)
+            ->setPostField('quality', $this->quality);
+			
+		if(!empty($this->filter)){
+			$request->setPostField('filter', $this->filter);
+		}
+			
+		$request
             ->setPostField('file_name', $file->getFilename())
             ->addPostFile('file', $file->getRealPath())
         ;
