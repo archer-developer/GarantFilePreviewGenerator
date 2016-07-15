@@ -14,16 +14,16 @@ In the tab Identity choose This user and enter correct admin login and password.
 B) Install GhostScript
 
 C) Install ImageMagic
-All *_.dll file in folder 'modules/coders' inside your 'ImageMagic directory' copy to 'ImageMagic directory' and 'C:\Windows\System32' and 'C:\Windows\SysWOW64'
-All *_.dll file in folder 'modules/filters' inside your 'ImageMagic directory' copy to 'ImageMagic directory' 'C:\Windows\System32' and 'C:\Windows\SysWOW64'
+All *_.dll file in folder `modules/coders` inside your `ImageMagic directory` copy to `ImageMagic directory` and `C:\Windows\System32` and `C:\Windows\SysWOW64`
+All *_.dll file in folder `modules/filters` inside your `ImageMagic directory` copy to `ImageMagic directory` `C:\Windows\System32` and `C:\Windows\SysWOW64`
 
 D) Find and download archive php_imagick-3.4.1-7.0-ts-vc14-x64
-Copy all CORE.dll's from it to 'C:\Windows\System32' and 'C:\Windows\SysWOW64'
-Copy php_imagick.dll to 'ext' folder in your 'php directory'
+Copy all CORE.dll`s from it to `C:\Windows\System32` and `C:\Windows\SysWOW64`
+Copy php_imagick.dll to `ext` folder in your `php directory`
 
 E) Add MAGICK_HOME to your environment PATH
 
-F) Edit php.ini file in your 'php' directory 
+F) Edit php.ini file in your `php` directory 
 
 Uncomment or add next lines in Windows extensions section:
     extension=php_curl.dll
@@ -126,6 +126,15 @@ To generate preview you can use generator service. Available services:
     dump($temp_preview_file);
     
     // Generate filtered preview
-    $temp_preview_file = $generator->generate($temp_file, 'avatar_square');
+	$generator->setFilter('avatar_square');
+    $temp_preview_file = $generator->generate($temp_file);
     
-    dump($temp_preview_file);
+	dump($temp_preview_file);
+	
+	// Generate preview in PDF or other format
+	// see AbstractGenerator class constants
+	$generator->setOutFormat(AbstractGenerator::PREVIEW_FORMAT_PDF);
+    $temp_preview_file = $generator->generate($temp_file);
+    
+	dump($temp_preview_file);
+	
