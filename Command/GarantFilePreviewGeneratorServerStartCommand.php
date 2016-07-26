@@ -28,7 +28,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
     {
         $this
             ->setName('garant:file-preview-generator:server-start')
-            ->setDescription('Start generator server in 127.0.0.1')
+            ->setDescription('Start generator server')
             ->addArgument('server', InputArgument::REQUIRED, 'Server name')
         ;
     }
@@ -140,8 +140,8 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
             $this->debug('Client processed at ' . date('h:i:s'));
         });
 
-        $socket->listen($availableServers[$server]['port'], $availableServers[$server]['ip']);
-        $this->io->success('Preview generator is started on port ' . $availableServers[$server]['port'] . ' on host ' . $availableServers[$server]['ip']);
+        $socket->listen($availableServers[$server]['port'], $availableServers[$server]['host']);
+        $this->io->success('Preview generator is started on port ' . $availableServers[$server]['port'] . ' on host ' . $availableServers[$server]['host']);
 
         $this->logMemoryUsage();
 

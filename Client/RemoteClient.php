@@ -53,8 +53,7 @@ class RemoteClient extends AbstractGenerator
         $timeout = $this->container->getParameter('garant_file_preview_generator.remote_client.connect_timeout');
 
         // Configure Guzzle HTTP client
-        // @todo Move protocol to server configuration
-        $client = new Client('http://' . $server['ip'] . ':' . $server['port']);
+        $client = new Client($server['protocol'] . '://' . $server['host'] . ':' . $server['port']);
         $client->setDefaultOption('connect_timeout', $timeout);
 
         $request = $client->post()
