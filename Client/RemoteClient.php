@@ -14,7 +14,6 @@ use Guzzle\Http\Exception\BadResponseException;
 use Guzzle\Http\Message\Response;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
-
 /**
  * Class RemoteClient
  * @package Garant\FilePreviewGeneratorBundle\Client
@@ -25,18 +24,38 @@ class RemoteClient extends AbstractGenerator
 
     const BUFFER_SIZE = 262144; // 256Kb
 
+    const SELECT_ALGORITHM_RAND = 'random';
+    const SELECT_ALGORITHM_ROUND_ROBIN = 'round-robin';
+
     /**
-     * @param \SplFileObject $file
-     * @return \SplFileObject
+     * @param \SplFileObject $file - input file
+     * @return \SplFileObject - file preview
      */
     public function generate(\SplFileObject $file)
     {
         $availableServers = $this->container->getParameter('garant_file_preview_generator.servers');
-        $serverNames = array_keys($availableServers);
-        $server = $availableServers[$serverNames[rand(0, count($serverNames) - 1)]];
+        $selectAlgorithm = $this->container->getParameter('garant_file_preview_generator.server_select_algorithm');
 
+        // Select server
+        switch($selectAlgorithm){
+            case self::SELECT_ALGORITHM_RAND:
+                $serverNames = array_keys($availableServers);
+                $server = $availableServers[$serverNames[rand(0, count($serverNames) - 1)]];
+                break;
+            case self::SELECT_ALGORITHM_ROUND_ROBIN:
+                throw new \RuntimeException('Round robin algorithm is not available in current bundle version :(');
+                break;
+            default:
+                throw new \RuntimeException('Invalid select algorithm: ' . $selectAlgorithm . '. See available server selection algorithm');
+        }
+
+        // Maximum connection timeout in seconds
+        $timeout = $this->container->getParameter('garant_file_preview_generator.remote_client.connect_timeout');
+
+        // Configure Guzzle HTTP client
+        // @todo Move protocol to server configuration
         $client = new Client('http://' . $server['ip'] . ':' . $server['port']);
-        $client->setDefaultOption('connect_timeout', $this->container->getParameter('garant_file_preview_generator.remote_client.connect_timeout'));
+        $client->setDefaultOption('connect_timeout', $timeout);
 
         $request = $client->post()
             ->addHeader('Content-Type', 'multipart/form-data')

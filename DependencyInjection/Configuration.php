@@ -2,6 +2,7 @@
 
 namespace Garant\FilePreviewGeneratorBundle\DependencyInjection;
 
+use Garant\FilePreviewGeneratorBundle\Client\RemoteClient;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -34,8 +35,12 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->enumNode('server_select_algorithm')
-                    ->values(array('random', 'round_robin'))
-                    ->defaultValue('random')
+                    ->values(array(
+                            RemoteClient::SELECT_ALGORITHM_RAND,
+                            RemoteClient::SELECT_ALGORITHM_ROUND_ROBIN,
+                        )
+                    )
+                    ->defaultValue(RemoteClient::SELECT_ALGORITHM_RAND)
                 ->end()
             ->append($serverNode)
             ->end()
