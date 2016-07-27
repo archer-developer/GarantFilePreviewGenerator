@@ -9,6 +9,7 @@
 namespace Garant\FilePreviewGeneratorBundle\Client;
 
 use Garant\FilePreviewGeneratorBundle\Generator\AbstractGenerator;
+use Garant\FilePreviewGeneratorBundle\SharedMemory\SharedMemoryInterface;
 use Guzzle\Http\Client;
 use Guzzle\Http\Exception\BadResponseException;
 use Guzzle\Http\Message\Response;
@@ -25,7 +26,7 @@ class RemoteClient extends AbstractGenerator
     const BUFFER_SIZE = 262144; // 256Kb
 
     const SELECT_ALGORITHM_RAND = 'random';
-    const SELECT_ALGORITHM_ROUND_ROBIN = 'round-robin';
+    const SELECT_ALGORITHM_ROUND_ROBIN = 'round_robin';
 
     /**
      * @param \SplFileObject $file - input file
@@ -37,16 +38,32 @@ class RemoteClient extends AbstractGenerator
         $selectAlgorithm = $this->container->getParameter('garant_file_preview_generator.server_select_algorithm');
 
         // Select server
+        $server = null;
         switch($selectAlgorithm){
             case self::SELECT_ALGORITHM_RAND:
+
                 $serverNames = array_keys($availableServers);
                 $server = $availableServers[$serverNames[rand(0, count($serverNames) - 1)]];
                 break;
+
             case self::SELECT_ALGORITHM_ROUND_ROBIN:
-                throw new \RuntimeException('Round robin algorithm is not available in current bundle version :(');
+
+                $shm_service = $this->container->getParameter('garant_file_preview_generator.shared_memory');
+                $shm = $this->container->get($shm_service);
+                if(!$shm instanceof SharedMemoryInterface){
+                    throw new \RuntimeException('Configuration error: Service '.get_class($shm).' must implement SharedMemory interface!');
+                }
+
+                //@todo select server
+
                 break;
+
             default:
                 throw new \RuntimeException('Invalid select algorithm: ' . $selectAlgorithm . '. See available server selection algorithm');
+        }
+
+        if(!$server){
+            throw new \RuntimeException('No servers available!');
         }
 
         // Maximum connection timeout in seconds

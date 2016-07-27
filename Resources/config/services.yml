@@ -23,3 +23,7 @@ services:
     garant_file_preview_generator.msoffice_generator:
           class: '%garant_file_preview_generator.msoffice_generator.class%'
           arguments: ["@liip_imagine.filter.manager", "@garant_file_preview_generator.binary.loader.filesystem"]
+
+    garant_file_preview_generator.shm.predis:
+          class: Garant\FilePreviewGeneratorBundle\SharedMemory\PredisAdapter
+          arguments: ["%%"]

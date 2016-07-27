@@ -43,6 +43,7 @@ class Configuration implements ConfigurationInterface
                     )
                     ->defaultValue(RemoteClient::SELECT_ALGORITHM_RAND)
                 ->end()
+                ->scalarNode('shared_memory')->end()
             ->append($serverNode)
             ->end()
         ;
