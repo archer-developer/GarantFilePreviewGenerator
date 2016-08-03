@@ -126,7 +126,7 @@ abstract class AbstractGenerator
     protected function generatePreview($file_path, $preview_path, $resolution = null)
     {
         // Create first page screen shot
-        $convert_cmd = "convert -density 280 -quality {$this->quality} -background white -alpha remove";
+        $convert_cmd = "convert -density 100 -quality {$this->quality} -background white -alpha remove";
 		$process = new Process($convert_cmd . " {$file_path} " . $preview_path);
         $process->run();
         if(!file_exists($preview_path) || $process->getExitCode() > 0){
