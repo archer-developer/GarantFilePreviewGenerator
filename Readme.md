@@ -81,17 +81,22 @@ You can add remote servers:
         #server_select_algorithm: random
         #
         # Remote servers are used to generate file preview
-        # To start generator server use "garant:file-preview-generator:server-start" command
+        # To start generator server use "garant:file-preview-generator:server-start <server_name>" command
         #servers:
         #    local_unix:
-        #        ip: 127.0.0.1
+        #        host: 127.0.0.1
         #        port: 9010
         #
         #    remote_windows:
-        #        ip: 192.168.10.201
+        #        host: 192.168.10.201
         #        port: 9010
+        #    
+        #    remote_windows_secure:
+        #        protocol: https 
+        #        host: 192.168.10.201
+        #        port: 9011
         
-Optionally you can configure liip imagine filters to post process preview images:
+Optionally you can configure Liip imagine filters to post process preview images:
 
     liip_imagine:
         filter_sets:
@@ -106,7 +111,7 @@ If remote server is configured you can start it. Call this command on remote ser
 
     bin/console garant:file-preview-generator:server-start <server_name>
     
-Also you can start server with -vvv flag to check memory usage.
+Also you can start server with -vvv flag to check memory usage and get other information about conversion process.
   
 ### Services
 

@@ -8,6 +8,7 @@
 
 namespace Garant\FilePreviewGeneratorBundle\Generator;
 
+use Garant\FilePreviewGeneratorBundle\Utils\OutputDecorator;
 use Liip\ImagineBundle\Binary\Loader\LoaderInterface;
 use Liip\ImagineBundle\Imagine\Filter\FilterManager;
 use Liip\ImagineBundle\Model\Binary;
@@ -25,6 +26,9 @@ abstract class AbstractGenerator
     const PREVIEW_FORMAT_PDF  = 'pdf';
     const PREVIEW_FORMAT_HTML = 'html';
     const PREVIEW_FORMAT_TEXT = 'txt';
+
+    // Skip to pdf converting
+    const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'bmp'];
 
     // Resolution to convert vector (like PDF) to bitmap image
     const PDF_RESOLUTION = 288;
@@ -48,8 +52,10 @@ abstract class AbstractGenerator
      */
     protected $binary_loader;
 
-    // Skip to pdf converting
-    const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'bmp'];
+    /**
+     * @var OutputDecorator
+     */
+    protected $output;
 
     /**
      * AbstractGenerator constructor.
@@ -69,6 +75,14 @@ abstract class AbstractGenerator
      * @return \SplFileObject
      */
     abstract public function generate(\SplFileObject $file);
+
+    /**
+     * @param OutputDecorator $output
+     */
+    public function setOutput(OutputDecorator $output)
+    {
+        $this->output = $output;
+    }
 
     /**
      * @param $quality
@@ -103,7 +117,10 @@ abstract class AbstractGenerator
      */
     protected function postProcess($path)
     {
+        $this->output->debug('Post processing: ', false);
+
         if(!$this->filter){
+            $this->output->debug('skipped');
             return $path;
         }
 
@@ -111,6 +128,9 @@ abstract class AbstractGenerator
          * @var Binary $binary
          */
         $binary = $this->binary_loader->find($path);
+
+        $this->output->debug('apply filter ' . $this->filter);
+
         $binary = $this->filter_manager->applyFilter($binary, $this->filter);
         file_put_contents($path, $binary->getContent());
 
@@ -118,18 +138,22 @@ abstract class AbstractGenerator
     }
 
     /**
-     * @param $file_path
-     * @param $preview_path
-     * @param $resolution
+     * @param string $file_path
+     * @param string $preview_path
+     * @param integer $density
      * @return string
      */
-    protected function generatePreview($file_path, $preview_path, $resolution = null)
+    protected function generatePreview($file_path, $preview_path, $density = 100)
     {
         // Create first page screen shot
-        $convert_cmd = "convert -density 280 -quality {$this->quality} -background white -alpha remove";
-		$process = new Process($convert_cmd . " {$file_path} " . $preview_path);
+        $convert_cmd = "convert -density {$density} -quality {$this->quality} -background white -alpha remove";
+
+        $this->output->debug($convert_cmd);
+
+        $process = new Process($convert_cmd . " {$file_path} " . $preview_path);
         $process->run();
         if(!file_exists($preview_path) || $process->getExitCode() > 0){
+            $this->output->debug('Error. Exit code: ' . $process->getExitCode());
             return false;
         }
 
