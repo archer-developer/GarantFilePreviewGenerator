@@ -36,19 +36,26 @@ class MSOfficeGenerator extends AbstractOfficeGenerator
 
         $out_path = $orig_path . '.' . $out_format;
 
+        $this->output->debug('Create COM object ', false);
+
         $word = new \COM("Word.Application");
         if(!$word){
             throw new \RuntimeException('COM object not created!');
         }
+        $this->output->debug('success');
+        $this->output->debug('Open document');
         $word->Documents->Open($orig_path, false, true);
 
         if($out_format != self::PREVIEW_FORMAT_PDF){
+            $this->output->debug('Save ' . $out_path . ' as ' . $format_code);
             $word->ActiveDocument->SaveAs($out_path, $format_code);
         }
         else{
+            $this->output->debug('ExportAsFixedFormat ' . $out_path . ' as ' . $format_code);
             //@todo Use range of pages (https://msdn.microsoft.com/en-us/library/bb243314(v=office.12).aspx)
             $word->ActiveDocument->ExportAsFixedFormat($out_path, $format_code, false, 0, 0, 0, 0, 7, true, true, 2, true, true, false);
         }
+        $this->output->debug('Destroy COM object');
         $word->Quit();
 		
 		if(!file_exists($out_path)){

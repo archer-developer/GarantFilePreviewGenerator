@@ -3,6 +3,7 @@
 namespace Garant\FilePreviewGeneratorBundle\Command;
 
 use Garant\FilePreviewGeneratorBundle\Generator\AbstractGenerator;
+use Garant\FilePreviewGeneratorBundle\Utils\OutputDecorator;
 use React\Tests\Stream\ReadableStreamTest;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -20,7 +21,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
     const BUFFER_SIZE = 262144; // 256Kb
 
     /**
-     * @var SymfonyStyle $io
+     * @var OutputDecorator $io
      */
     protected $io;
 
@@ -36,7 +37,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $formatter = $this->getHelper('formatter');
-        $this->io = new SymfonyStyle($input, $cliOutput = $output);
+        $this->io = new OutputDecorator(new SymfonyStyle($input, $cliOutput = $output));
 
         $server = $input->getArgument('server');
         $availableServers = $this->getContainer()->getParameter('garant_file_preview_generator.servers');
@@ -52,7 +53,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
         $http->on('request', function(\React\Http\Request $request, \React\Http\Response $response){
 
             $this->io->writeLn('Client accepted at ' . date('h:i:s'));
-            $this->logMemoryUsage();
+            $this->io->logMemoryUsage();
 
             $files = $request->getFiles();
             if(empty($files['file'])){
@@ -78,31 +79,36 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
 
             $out_format = AbstractGenerator::PREVIEW_FORMAT_JPEG;
             if(!empty($request->getPost()['out_format'])){
-                $this->debug('Set output format: ' . $request->getPost()['out_format']);
+                $this->io->debug('Set output format: ' . $request->getPost()['out_format']);
                 $out_format = $request->getPost()['out_format'];
             }
 
             try{
                 // Select generator
+                $this->io->debug('Select generator: ', false);
                 if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                    $this->io->debug('msoffice_generator');
                     $generator = $this->getContainer()->get('garant_file_preview_generator.msoffice_generator');
                 }
                 else{
+                    $this->io->debug('libreoffice_generator');
                     $generator = $this->getContainer()->get('garant_file_preview_generator.libreoffice_generator');
                 }
+                $generator->setOutput($this->io);
 
                 // Configure generator
                 $generator->setOutFormat($out_format);
                 if(isset($request->getPost()['quality'])){
-                    $this->debug('Set quality: ' . $request->getPost()['quality']);
+                    $this->io->debug('Set quality: ' . $request->getPost()['quality']);
                     $generator->setQuality($request->getPost()['quality']);
                 }
 
                 if(isset($request->getPost()['filter'])){
-                    $this->debug('Set post filter: ' . $request->getPost()['filter']);
+                    $this->io->debug('Set post filter: ' . $request->getPost()['filter']);
                     $generator->setFilter($request->getPost()['filter']);
                 }
 
+                $this->io->debug('Start generation');
                 $preview = $generator->generate($temp_file);
                 if(!$preview){
                     throw new \RuntimeException("Conversion error");
@@ -120,7 +126,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                 }
             }
 
-            $this->debug('Send preview to client');
+            $this->io->debug('Send preview to client');
 
             $statusCode = 200;
             $headers = array('Content-Type: application/octet-stream');
@@ -137,13 +143,13 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                 unlink($path);
             }
 
-            $this->debug('Client processed at ' . date('h:i:s'));
+            $this->io->debug('Client processed at ' . date('h:i:s'));
         });
 
         $socket->listen($availableServers[$server]['port'], $availableServers[$server]['host']);
         $this->io->success('Preview generator is started on port ' . $availableServers[$server]['port'] . ' on host ' . $availableServers[$server]['host']);
 
-        $this->logMemoryUsage();
+        $this->io->logMemoryUsage();
 
         try{
             $loop->run();
@@ -171,27 +177,5 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
         }
 
         return false;
-    }
-
-    /**
-     * Show current memory usage
-     */
-    protected function logMemoryUsage()
-    {
-        if($this->io->isDebug()) {
-            $this->io->writeln('<info>Memory usage: ' . number_format(memory_get_usage() / 1024 / 1024, 2) . 'Mb</info>');
-            $this->io->writeln('<info>Memory peak usage: ' . number_format(memory_get_peak_usage() / 1024 / 1024, 2) . 'Mb</info>');
-        }
-    }
-
-    /**
-     * Show debug message
-     * @param string $message
-     */
-    protected function debug($message)
-    {
-        if($this->io->isDebug()) {
-            $this->io->writeln($message);
-        }
     }
 }
