@@ -31,7 +31,7 @@ abstract class AbstractGenerator
     const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'bmp'];
 
     // Resolution to convert vector (like PDF) to bitmap image
-    const PDF_RESOLUTION = 288;
+    const PDF_RESOLUTION = 100;
 
     // Preview output format
     protected $out_format = self::PREVIEW_FORMAT_JPEG;
