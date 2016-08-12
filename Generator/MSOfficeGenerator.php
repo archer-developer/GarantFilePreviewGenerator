@@ -56,8 +56,11 @@ class MSOfficeGenerator extends AbstractOfficeGenerator
             $word->ActiveDocument->ExportAsFixedFormat($out_path, $format_code, false, 0, 0, 0, 0, 7, true, true, 2, true, true, false);
         }
         $this->output->debug('Destroy COM object');
-        $word->Quit();
-		
+        // Close word instance without save changes
+        $word->Quit(false);
+        // Release resource
+        $word = null;
+            
 		if(!file_exists($out_path)){
 			throw new \RuntimeException('Convert failed!');
 		}
