@@ -44,26 +44,29 @@ class MSOfficeGenerator extends AbstractOfficeGenerator
         }
         $this->output->debug('success');
         $this->output->debug('Open document');
-        $word->Documents->Open($orig_path, false, true);
+        try {
+            $word->Documents->Open($orig_path, false, true);
 
-        if($out_format != self::PREVIEW_FORMAT_PDF){
-            $this->output->debug('Save ' . $out_path . ' as ' . $format_code);
-            $word->ActiveDocument->SaveAs($out_path, $format_code);
+            if ($out_format != self::PREVIEW_FORMAT_PDF) {
+                $this->output->debug('Save document as ' . $out_path);
+                $word->ActiveDocument->SaveAs2($out_path);
+            } else {
+                $this->output->debug('ExportAsFixedFormat ' . $out_path . ' as ' . $format_code);
+                //@todo Use range of pages (https://msdn.microsoft.com/en-us/library/bb243314(v=office.12).aspx)
+                $word->ActiveDocument->ExportAsFixedFormat($out_path, $format_code, false, 0, 0, 0, 0, 7, true, true, 2, true, true, false);
+            }
+
+            if (!file_exists($out_path)) {
+                throw new \RuntimeException('Convert failed!');
+            }
         }
-        else{
-            $this->output->debug('ExportAsFixedFormat ' . $out_path . ' as ' . $format_code);
-            //@todo Use range of pages (https://msdn.microsoft.com/en-us/library/bb243314(v=office.12).aspx)
-            $word->ActiveDocument->ExportAsFixedFormat($out_path, $format_code, false, 0, 0, 0, 0, 7, true, true, 2, true, true, false);
+        finally{
+            $this->output->debug('Destroy COM object');
+            // Close word instance without save changes
+            $word->Quit(false);
+            // Release resource
+            $word = null;
         }
-        $this->output->debug('Destroy COM object');
-        // Close word instance without save changes
-        $word->Quit(false);
-        // Release resource
-        $word = null;
-            
-		if(!file_exists($out_path)){
-			throw new \RuntimeException('Convert failed!');
-		}
 
         return $out_path;
     }
