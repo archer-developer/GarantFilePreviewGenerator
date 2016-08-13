@@ -21,7 +21,7 @@ class MSOfficeGenerator extends AbstractOfficeGenerator
     const EXPORT_FORMATS = [
         self::PREVIEW_FORMAT_PDF  => 17,
         self::PREVIEW_FORMAT_HTML => 8,
-        self::PREVIEW_FORMAT_TEXT => 7,
+        self::PREVIEW_FORMAT_TEXT => 2,
     ];
 
     /**
@@ -49,7 +49,7 @@ class MSOfficeGenerator extends AbstractOfficeGenerator
 
             if ($out_format != self::PREVIEW_FORMAT_PDF) {
                 $this->output->debug('Save document as ' . $out_path);
-                $word->ActiveDocument->SaveAs2($out_path);
+                $word->ActiveDocument->SaveAs2($out_path, $format_code);
             } else {
                 $this->output->debug('ExportAsFixedFormat ' . $out_path . ' as ' . $format_code);
                 //@todo Use range of pages (https://msdn.microsoft.com/en-us/library/bb243314(v=office.12).aspx)
