@@ -3,7 +3,6 @@
     "description": "This Symfony bundle provides classes to generate preview image for office files like .doc, .docx, .xls and others. It contains client and server that lets use it both locally and remotely",
     "keywords": ["preview", "office", "generator"],
     "license": "MIT",
-    "minimum-stability": "dev",
     "homepage": "https://github.com/archer-developer/GarantFilePreviewGenerator",
     "authors": [
         {
