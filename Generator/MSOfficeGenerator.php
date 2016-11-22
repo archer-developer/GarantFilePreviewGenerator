@@ -28,6 +28,7 @@ class MSOfficeGenerator extends AbstractOfficeGenerator
     const ALLOWED_INPUT_FORMATS = [
         'plain/text',
         'text/html',
+        'text/rtf',
         'application/json',
         'application/javascript',
         'application/msword', // doc
