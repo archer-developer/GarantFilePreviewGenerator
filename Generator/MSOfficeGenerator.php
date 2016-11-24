@@ -27,6 +27,7 @@ class MSOfficeGenerator extends AbstractOfficeGenerator
     // Mime-types allowed to convert
     const ALLOWED_INPUT_FORMATS = [
         'plain/text',
+        'text/plain',
         'text/html',
         'text/rtf',
         'application/json',
