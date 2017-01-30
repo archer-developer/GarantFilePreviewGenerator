@@ -145,5 +145,10 @@ To generate preview you can use generator service. Available services:
 	$generator->setOutFormat(AbstractGenerator::PREVIEW_FORMAT_PDF);
     $temp_preview_file = $generator->generate($temp_file);
     
+    // Optionally, you can convert range of pages
+    // $generator->setPageRange('0-2');
+    // Or set number of pages
+    // $generator->setPageCount(3);
+    
 	dump($temp_preview_file);
 	
