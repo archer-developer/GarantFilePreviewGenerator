@@ -33,13 +33,24 @@ abstract class AbstractGenerator
     // Resolution to convert vector (like PDF) to bitmap image
     const PDF_RESOLUTION = 100;
 
-    // Preview output format
+    /**
+     * @var string - Preview output format
+     */
     protected $out_format = self::PREVIEW_FORMAT_JPEG;
 
-    // JPEG quality
+    /**
+     * @var int - JPEG quality
+     */
     protected $quality = 100;
 
-    // LiipImagine filter to post processing
+    /**
+     * @var string - Range of pages to convert
+     */
+    protected $page_range = '0';
+
+    /**
+     * @var string - LiipImagine filter to post processing
+     */
     protected $filter;
 
     /**
@@ -110,6 +121,24 @@ abstract class AbstractGenerator
     }
 
     /**
+     * @param string $page_range
+     */
+    public function setPageRange($page_range)
+    {
+        $this->page_range = $page_range;
+    }
+
+    /**
+     * Convert pages from 0 to $page_count
+     * @param string $page_count
+     */
+    public function setPageCount($page_count)
+    {
+        $max_page = intval($page_count) - 1;
+        $this->page_range = ($max_page) ? '0-' . $max_page : '0';
+    }
+
+    /**
      * Process preview image
      *
      * @param string $path - absolute path to preview image
@@ -146,7 +175,7 @@ abstract class AbstractGenerator
     protected function generatePreview($file_path, $preview_path, $density = 100)
     {
         // Create first page screen shot
-        $convert_cmd = "convert -density {$density} -quality {$this->quality} -background white -alpha remove";
+        $convert_cmd = "convert -density {$density} -quality {$this->quality} -background white -alpha remove -append";
 
         $this->output->debug($convert_cmd);
 
