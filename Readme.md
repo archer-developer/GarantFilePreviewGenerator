@@ -52,6 +52,12 @@ This bundle can be installed using [composer](https://getcomposer.org/):
 
     composer require garant/file-preview-generator-bundle
     
+Maybe you should add 
+
+    "react/http": "dev-master#cd15204bd15d106d7832c680e4fb0ca0ce2f5e30"
+    
+to your composer.json file to set specific react\http commit. See details [here](https://github.com/archer-developer/GarantFilePreviewGenerator/wiki/Specific-version-for-React-Http).
+    
 ### Register the bundle
 
     <?php
