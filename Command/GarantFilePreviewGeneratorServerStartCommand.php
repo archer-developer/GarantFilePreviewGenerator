@@ -107,6 +107,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                     $this->io->debug('Set page count: ' . $request->getPost()['page_count']);
                     $generator->setPageCount($request->getPost()['page_count']);
                 }
+                $this->io->debug('Page range: ' . $generator->getPageRange());
 
                 if(isset($request->getPost()['filter'])){
                     $this->io->debug('Set post filter: ' . $request->getPost()['filter']);

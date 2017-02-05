@@ -129,6 +129,14 @@ abstract class AbstractGenerator
     }
 
     /**
+     * @return string
+     */
+    public function getPageRange()
+    {
+        return $this->page_range;
+    }
+
+    /**
      * Convert pages from 0 to $page_count
      * @param string $page_count
      */
