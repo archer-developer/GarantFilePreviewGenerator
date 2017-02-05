@@ -135,7 +135,7 @@ abstract class AbstractGenerator
     public function setPageCount($page_count)
     {
         $max_page = intval($page_count) - 1;
-        $this->page_range = ($max_page) ? '0-' . $max_page : '0';
+        $this->page_range = ($max_page > 0) ? '0-' . $max_page : '0';
     }
 
     /**
