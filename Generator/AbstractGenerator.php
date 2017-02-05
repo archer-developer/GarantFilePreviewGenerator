@@ -33,6 +33,12 @@ abstract class AbstractGenerator
     // Resolution to convert vector (like PDF) to bitmap image
     const PDF_RESOLUTION = 100;
 
+    // Default JPEG quality
+    const JPEG_QUALITY = 100;
+
+    // Default page range
+    const PAGE_RANGE = '0';
+
     /**
      * @var string - Preview output format
      */

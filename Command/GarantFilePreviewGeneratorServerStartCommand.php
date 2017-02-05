@@ -77,12 +77,6 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                 $temp_file->fwrite(fread($files['file']['stream'], self::BUFFER_SIZE));
             }
 
-            $out_format = AbstractGenerator::PREVIEW_FORMAT_JPEG;
-            if(!empty($request->getPost()['out_format'])){
-                $this->io->debug('Set output format: ' . $request->getPost()['out_format']);
-                $out_format = $request->getPost()['out_format'];
-            }
-
             try{
                 // Select generator
                 $this->io->debug('Select generator: ', false);
@@ -97,21 +91,33 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                 $generator->setOutput($this->io);
 
                 // Configure generator
+                $out_format = AbstractGenerator::PREVIEW_FORMAT_JPEG;
+                if(!empty($request->getPost()['out_format'])){
+                    $this->io->debug('Set output format: ' . $request->getPost()['out_format']);
+                    $out_format = $request->getPost()['out_format'];
+                }
                 $generator->setOutFormat($out_format);
+
                 if(isset($request->getPost()['quality'])){
                     $this->io->debug('Set quality: ' . $request->getPost()['quality']);
                     $generator->setQuality($request->getPost()['quality']);
+                } else {
+                    $generator->setQuality(AbstractGenerator::JPEG_QUALITY);
                 }
 
                 if(!empty($request->getPost()['page_count'])){
                     $this->io->debug('Set page count: ' . $request->getPost()['page_count']);
                     $generator->setPageCount($request->getPost()['page_count']);
+                } else{
+                    $generator->setPageRange(AbstractGenerator::PAGE_RANGE);
                 }
                 $this->io->debug('Page range: ' . $generator->getPageRange());
 
                 if(isset($request->getPost()['filter'])){
                     $this->io->debug('Set post filter: ' . $request->getPost()['filter']);
                     $generator->setFilter($request->getPost()['filter']);
+                } else {
+                    $generator->setFilter(null);
                 }
 
                 $this->io->debug('Start generation');
