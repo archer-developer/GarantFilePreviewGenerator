@@ -25,6 +25,11 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
      */
     protected $io;
 
+    /**
+     * @var string
+     */
+    protected $server;
+
     protected function configure()
     {
         $this
@@ -39,10 +44,10 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
         $formatter = $this->getHelper('formatter');
         $this->io = new OutputDecorator(new SymfonyStyle($input, $cliOutput = $output));
 
-        $server = $input->getArgument('server');
+        $this->server = $input->getArgument('server');
         $availableServers = $this->getContainer()->getParameter('garant_file_preview_generator.servers');
-        if(!isset($availableServers[$server])){
-            $this->io->error('Server "' . $server . '" is not configured');
+        if(!isset($availableServers[$this->server])){
+            $this->io->error('Server "' . $this->server . '" is not configured');
             return;
         }
 
@@ -62,7 +67,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
             }
 
             // Copy file from memory to temp
-            $tmp_name = tempnam(sys_get_temp_dir(), 'preview_attachment_');
+            $tmp_name = sys_get_temp_dir() . '/preview_attachment_' . $this->server;
             if(isset($request->getPost()['file_name'])){
 
                 $this->io->write($request->getPost()['file_name'], true);
@@ -72,6 +77,8 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                     $tmp_name .= '.' . $extension[1];
                 }
             }
+            $this->io->writeLn('Temp name: ' . $tmp_name);
+
             $temp_file = new \SplFileObject($tmp_name, 'w');
             while(!feof($files['file']['stream'])){
                 $temp_file->fwrite(fread($files['file']['stream'], self::BUFFER_SIZE));
@@ -93,9 +100,9 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                 // Configure generator
                 $out_format = AbstractGenerator::PREVIEW_FORMAT_JPEG;
                 if(!empty($request->getPost()['out_format'])){
-                    $this->io->debug('Set output format: ' . $request->getPost()['out_format']);
                     $out_format = $request->getPost()['out_format'];
                 }
+                $this->io->debug('Set output format: ' . $out_format);
                 $generator->setOutFormat($out_format);
 
                 if(isset($request->getPost()['quality'])){
@@ -120,7 +127,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                     $generator->setFilter(null);
                 }
 
-                $this->io->debug('Start generation');
+                $this->io->debug('Start generation: ' . $temp_file->getRealPath());
                 $preview = $generator->generate($temp_file);
                 if(!$preview){
                     throw new \RuntimeException("Conversion error");
@@ -132,8 +139,8 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
             finally{
                 if($temp_file->getRealPath()){
                     $path = $temp_file->getRealPath();
+                    // Close file pointer
                     $temp_file = null;
-                    //@todo On Windows we have permission denied warning.
                     @unlink($path);
                 }
             }
@@ -158,8 +165,8 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
             $this->io->debug('Client processed at ' . date('h:i:s'));
         });
 
-        $socket->listen($availableServers[$server]['port'], $availableServers[$server]['host']);
-        $this->io->success('Preview generator is started on port ' . $availableServers[$server]['port'] . ' on host ' . $availableServers[$server]['host']);
+        $socket->listen($availableServers[$this->server]['port'], $availableServers[$this->server]['host']);
+        $this->io->success('Preview generator is started on port ' . $availableServers[$this->server]['port'] . ' on host ' . $availableServers[$this->server]['host']);
 
         $this->io->logMemoryUsage();
 
