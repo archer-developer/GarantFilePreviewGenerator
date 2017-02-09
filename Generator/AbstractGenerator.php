@@ -188,12 +188,13 @@ abstract class AbstractGenerator
      */
     protected function generatePreview($file_path, $preview_path, $density = 100)
     {
-        // Create first page screen shot
+        // Create page range screen shot
         $convert_cmd = "convert -density {$density} -quality {$this->quality} -background white -alpha remove -append";
+        $convert_cmd = $convert_cmd . " {$file_path} " . $preview_path;
 
         $this->output->debug($convert_cmd);
 
-        $process = new Process($convert_cmd . " {$file_path} " . $preview_path);
+        $process = new Process($convert_cmd);
         $process->run();
         if(!file_exists($preview_path) || $process->getExitCode() > 0){
             $this->output->debug('Error. Exit code: ' . $process->getExitCode());
