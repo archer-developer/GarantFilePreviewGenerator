@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: archer
+ * User: Alexander Samusevich
  * Date: 6.6.16
  * Time: 14.58
  */

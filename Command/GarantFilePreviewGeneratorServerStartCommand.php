@@ -52,7 +52,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
         }
 
         $loop = \React\EventLoop\Factory::create();
-        $socket = new \React\Socket\Server($loop);
+        $socket = new \React\Socket\Server($availableServers[$this->server]['host'] . ':' . $availableServers[$this->server]['port'], $loop);
         $http = new \React\Http\Server($socket);
 
         $http->on('request', function(\React\Http\Request $request, \React\Http\Response $response){
@@ -165,7 +165,6 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
             $this->io->debug('Client processed at ' . date('h:i:s'));
         });
 
-        $socket->listen($availableServers[$this->server]['port'], $availableServers[$this->server]['host']);
         $this->io->success('Preview generator is started on port ' . $availableServers[$this->server]['port'] . ' on host ' . $availableServers[$this->server]['host']);
 
         $this->io->logMemoryUsage();

@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: archer
+ * User: Alexander Samusevich
  * Date: 7.8.16
  * Time: 14.58
  */
@@ -30,6 +30,11 @@ class OutputDecorator
         $this->output = $output;
     }
 
+    /**
+     * @param $name
+     * @param $arguments
+     * @return mixed
+     */
     public function __call($name, $arguments)
     {
         return $this->output->$name(...$arguments);
@@ -44,6 +49,12 @@ class OutputDecorator
             $this->output->writeln('<info>Memory usage: ' . number_format(memory_get_usage() / 1024 / 1024, 2) . 'Mb</info>');
             $this->output->writeln('<info>Memory peak usage: ' . number_format(memory_get_peak_usage() / 1024 / 1024, 2) . 'Mb</info>');
         }
+    }
+
+    public function writeLn($message, $newline = false, $options = 0)
+    {
+        $message = '<info>'.(new \DateTime())->format('h:i:s d.m.y').'</info> ' . $message;
+        $this->output->write($message, $newline, $options);
     }
 
     /**
