@@ -17,7 +17,10 @@ use Symfony\Component\Process\Process;
  */
 class Supervisor implements SupervisorInterface
 {
-    const PROCESS_STRING = 'php bin/console garant:file-preview-generator:server-start %server% --env=dev -vvv --silence';
+    /**
+     * @todo Move server start options (e.g env and verbosity) to supervisor configuration
+     */
+    const PROCESS_STRING = 'php bin/console garant:file-preview-generator:server-start %server% --env=dev -vvv';
 
     /**
      * @var array
