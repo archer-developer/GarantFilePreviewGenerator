@@ -27,7 +27,9 @@ class GarantFilePreviewGeneratorSupervisorStartCommand extends ContainerAwareCom
     {
         set_time_limit(-1);
 
-        $io = new OutputDecorator(new SymfonyStyle($input, $cliOutput = $output));
+        $logger = $this->getContainer()->get('logger');
+
+        $io = new OutputDecorator(new SymfonyStyle($input, $cliOutput = $output), $logger);
 
         $servers = $this->getContainer()->getParameter('garant_file_preview_generator.servers');
 

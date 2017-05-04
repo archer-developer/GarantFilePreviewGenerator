@@ -10,7 +10,7 @@ services:
     garant_file_preview_generator.binary.loader.filesystem:
         class: '%garant_file_preview_generator.binary.loader.filesystem_class%'
         #@todo Fix the third argument
-        arguments: ['@liip_imagine.mime_type_guesser', '@liip_imagine.extension_guesser', '%kernel.root_dir%/../web']
+        arguments: ['@liip_imagine.mime_type_guesser', '@liip_imagine.extension_guesser', '%kernel.root_dir%/../web', '@liip_imagine.binary.locator.filesystem']
 
     garant_file_preview_generator.remote_client:
         class: '%garant_file_preview_generator.remote_client.class%'

@@ -42,7 +42,9 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $formatter = $this->getHelper('formatter');
-        $this->io = new OutputDecorator(new SymfonyStyle($input, $cliOutput = $output));
+        $logger = $this->getContainer()->get('logger');
+
+        $this->io = new OutputDecorator(new SymfonyStyle($input, $cliOutput = $output), $logger);
 
         $this->server = $input->getArgument('server');
         $availableServers = $this->getContainer()->getParameter('garant_file_preview_generator.servers');
