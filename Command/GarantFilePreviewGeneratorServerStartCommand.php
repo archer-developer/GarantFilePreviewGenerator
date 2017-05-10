@@ -103,7 +103,6 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                             $this->logger->debug('libreoffice_generator');
                             $generator = $this->getContainer()->get('garant_file_preview_generator.libreoffice_generator');
                         }
-                        $generator->setOutput($this->io);
 
                         // Configure generator
                         $out_format = AbstractGenerator::PREVIEW_FORMAT_JPEG;

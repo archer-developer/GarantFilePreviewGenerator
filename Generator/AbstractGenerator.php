@@ -8,11 +8,11 @@
 
 namespace Garant\FilePreviewGeneratorBundle\Generator;
 
-use Garant\FilePreviewGeneratorBundle\Utils\OutputDecorator;
 use Liip\ImagineBundle\Binary\Loader\LoaderInterface;
 use Liip\ImagineBundle\Imagine\Filter\FilterManager;
 use Liip\ImagineBundle\Model\Binary;
 
+use Symfony\Bridge\Monolog\Logger;
 use Symfony\Component\Process\Process;
 
 /**
@@ -70,9 +70,9 @@ abstract class AbstractGenerator
     protected $binary_loader;
 
     /**
-     * @var OutputDecorator
+     * @var Logger
      */
-    protected $output;
+    protected $logger;
 
     /**
      * AbstractGenerator constructor.
@@ -94,11 +94,11 @@ abstract class AbstractGenerator
     abstract public function generate(\SplFileObject $file);
 
     /**
-     * @param OutputDecorator $output
+     * @param Logger $logger
      */
-    public function setOutput(OutputDecorator $output)
+    public function setLogger(Logger $logger)
     {
-        $this->output = $output;
+        $this->logger = $logger;
     }
 
     /**
@@ -160,10 +160,8 @@ abstract class AbstractGenerator
      */
     protected function postProcess($path)
     {
-        $this->output->debug('Post processing: ', false);
-
         if(!$this->filter){
-            $this->output->debug('skipped');
+            $this->logger->debug('Post processing: skipped');
             return $path;
         }
 
@@ -172,7 +170,7 @@ abstract class AbstractGenerator
          */
         $binary = $this->binary_loader->find($path);
 
-        $this->output->debug('apply filter ' . $this->filter);
+        $this->logger->debug('Post processing: apply filter ' . $this->filter);
 
         $binary = $this->filter_manager->applyFilter($binary, $this->filter);
         file_put_contents($path, $binary->getContent());
@@ -192,12 +190,12 @@ abstract class AbstractGenerator
         $convert_cmd = "convert -density {$density} -quality {$this->quality} -background white -alpha remove -append";
         $convert_cmd = $convert_cmd . " {$file_path} " . $preview_path;
 
-        $this->output->debug($convert_cmd);
+        $this->logger->debug($convert_cmd);
 
         $process = new Process($convert_cmd);
         $process->run();
         if(!file_exists($preview_path) || $process->getExitCode() > 0){
-            $this->output->debug('Error. Exit code: ' . $process->getExitCode());
+            $this->logger->debug('Error. Exit code: ' . $process->getExitCode());
             return false;
         }
 
