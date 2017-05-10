@@ -12,5 +12,7 @@ use Garant\FilePreviewGeneratorBundle\Utils\OutputDecorator;
 
 interface SupervisorInterface
 {
-    public function run(array $servers, OutputDecorator $io = null);
+    public function setEnvironment($env);
+
+    public function run(array $servers, OutputDecorator $io);
 }

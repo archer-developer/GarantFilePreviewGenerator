@@ -8,7 +8,6 @@
 
 namespace Garant\FilePreviewGeneratorBundle\Utils;
 
-use Symfony\Bridge\Monolog\Logger;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -24,19 +23,17 @@ class OutputDecorator
     protected $output;
 
     /**
-     * @var Logger
-     */
-    protected $logger;
-
-    /**
      * AbstractGenerator constructor.
      * @param SymfonyStyle $output
-     * @param Logger $logger
      */
-    public function __construct(SymfonyStyle $output, Logger $logger)
+    public function __construct(SymfonyStyle $output)
     {
         $this->output = $output;
-        $this->logger = $logger;
+    }
+
+    public function __call($method, $args)
+    {
+        $this->output->$method(...$args);
     }
 
     /**
@@ -51,31 +48,6 @@ class OutputDecorator
     }
 
     /**
-     * @param $message
-     */
-    public function writeLn($message)
-    {
-        $this->logger->info($message);
-    }
-
-    /**
-     * @param $message
-     */
-    public function error($message)
-    {
-        $this->logger->err($message);
-    }
-
-    /**
-     * @param $message
-     */
-    public function success($message)
-    {
-        $this->output->success($message);
-        $this->logger->info($message);
-    }
-
-    /**
      * Show debug message
      * @param string $message
      * @param bool $new_line
@@ -84,7 +56,6 @@ class OutputDecorator
     {
         if($this->output->isDebug()) {
             $this->output->write($message, $new_line);
-            $this->logger->debug($message);
         }
     }
 

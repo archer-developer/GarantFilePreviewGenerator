@@ -27,9 +27,7 @@ class GarantFilePreviewGeneratorSupervisorStartCommand extends ContainerAwareCom
     {
         set_time_limit(-1);
 
-        $logger = $this->getContainer()->get('logger');
-
-        $io = new OutputDecorator(new SymfonyStyle($input, $cliOutput = $output), $logger);
+        $io = new OutputDecorator(new SymfonyStyle($input, $cliOutput = $output));
 
         $servers = $this->getContainer()->getParameter('garant_file_preview_generator.servers');
 
@@ -39,6 +37,7 @@ class GarantFilePreviewGeneratorSupervisorStartCommand extends ContainerAwareCom
             throw new \RuntimeException('Supervisor class must implements SupervisorInterface!');
         }
 
+        $supervisor->setEnvironment($this->getContainer()->getParameter('kernel.environment'));
         $supervisor->run($servers, $io);
     }
 }
