@@ -4,6 +4,11 @@ namespace Garant\FilePreviewGeneratorBundle\Command;
 
 use Garant\FilePreviewGeneratorBundle\Generator\AbstractGenerator;
 use Garant\FilePreviewGeneratorBundle\Utils\OutputDecorator;
+use Psr\Http\Message\ServerRequestInterface;
+use React\Http\Response;
+use React\Http\Server;
+use React\Promise\Promise;
+use React\Stream\ReadableStream;
 use React\Tests\Stream\ReadableStreamTest;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -55,119 +60,137 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
 
         $loop = \React\EventLoop\Factory::create();
         $socket = new \React\Socket\Server($availableServers[$this->server]['host'] . ':' . $availableServers[$this->server]['port'], $loop);
-        $http = new \React\Http\Server($socket);
+        $http = new Server($socket, function (ServerRequestInterface $request) {
 
-        $http->on('request', function(\React\Http\Request $request, \React\Http\Response $response){
+            return new Promise(function ($resolve, $reject) use ($request) {
 
-            $this->io->writeLn('Client accepted at ' . date('h:i:s'));
-            $this->io->logMemoryUsage();
+                $this->io->writeLn('Client accepted at ' . date('h:i:s'));
+                $this->io->logMemoryUsage();
 
-            $files = $request->getFiles();
-            if(empty($files['file'])){
-                $this->io->error("Empty file");
-                return $this->error($response, "Empty file");
-            }
+                // Generate temp name to store file body
+                $tmp_name = sys_get_temp_dir() . '/preview_attachment_' . $this->server;
+                if(isset($request->getQueryParams()['file_name'])){
 
-            // Copy file from memory to temp
-            $tmp_name = sys_get_temp_dir() . '/preview_attachment_' . $this->server;
-            if(isset($request->getPost()['file_name'])){
+                    $this->io->writeLn($request->getQueryParams()['file_name'], false);
 
-                $this->io->write($request->getPost()['file_name'], true);
-
-                preg_match('/\.([^\.]+)$/', $request->getPost()['file_name'], $extension);
-                if(isset($extension[1])){
-                    $tmp_name .= '.' . $extension[1];
+                    preg_match('/\.([^\.]+)$/', $request->getQueryParams()['file_name'], $extension);
+                    if(isset($extension[1])){
+                        $tmp_name .= '.' . $extension[1];
+                    }
                 }
-            }
-            $this->io->writeLn('Temp name: ' . $tmp_name);
+                $this->io->writeLn('Temp name: ' . $tmp_name);
 
-            $temp_file = new \SplFileObject($tmp_name, 'w');
-            while(!feof($files['file']['stream'])){
-                $temp_file->fwrite(fread($files['file']['stream'], self::BUFFER_SIZE));
-            }
+                // Open temp file
+                $temp_file = new \SplFileObject($tmp_name, 'w');
 
-            try{
-                // Select generator
-                $this->io->debug('Select generator: ', false);
-                if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-                    $this->io->debug('msoffice_generator');
-                    $generator = $this->getContainer()->get('garant_file_preview_generator.msoffice_generator');
-                }
-                else{
-                    $this->io->debug('libreoffice_generator');
-                    $generator = $this->getContainer()->get('garant_file_preview_generator.libreoffice_generator');
-                }
-                $generator->setOutput($this->io);
+                // Write data to temp file
+                $request->getBody()->on('data', function ($data) use ($temp_file) {
+                    $temp_file->fwrite($data);
+                });
 
-                // Configure generator
-                $out_format = AbstractGenerator::PREVIEW_FORMAT_JPEG;
-                if(!empty($request->getPost()['out_format'])){
-                    $out_format = $request->getPost()['out_format'];
-                }
-                $this->io->debug('Set output format: ' . $out_format);
-                $generator->setOutFormat($out_format);
+                // Convert temp file and send response to client
+                $request->getBody()->on('end', function () use ($resolve, $reject, $request, $temp_file){
 
-                if(isset($request->getPost()['quality'])){
-                    $this->io->debug('Set quality: ' . $request->getPost()['quality']);
-                    $generator->setQuality($request->getPost()['quality']);
-                } else {
-                    $generator->setQuality(AbstractGenerator::JPEG_QUALITY);
-                }
+                    try{
+                        // Select generator
+                        $this->io->debug('Select generator: ', false);
+                        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                            $this->io->debug('msoffice_generator');
+                            $generator = $this->getContainer()->get('garant_file_preview_generator.msoffice_generator');
+                        }
+                        else{
+                            $this->io->debug('libreoffice_generator');
+                            $generator = $this->getContainer()->get('garant_file_preview_generator.libreoffice_generator');
+                        }
+                        $generator->setOutput($this->io);
 
-                if(!empty($request->getPost()['page_count'])){
-                    $this->io->debug('Set page count: ' . $request->getPost()['page_count']);
-                    $generator->setPageCount($request->getPost()['page_count']);
-                } else{
-                    $generator->setPageRange(AbstractGenerator::PAGE_RANGE);
-                }
-                $this->io->debug('Page range: ' . $generator->getPageRange());
+                        // Configure generator
+                        $out_format = AbstractGenerator::PREVIEW_FORMAT_JPEG;
+                        if(!empty($request->getQueryParams()['out_format'])){
+                            $out_format = $request->getQueryParams()['out_format'];
+                        }
+                        $this->io->debug('Set output format: ' . $out_format);
+                        $generator->setOutFormat($out_format);
 
-                if(isset($request->getPost()['filter'])){
-                    $this->io->debug('Set post filter: ' . $request->getPost()['filter']);
-                    $generator->setFilter($request->getPost()['filter']);
-                } else {
-                    $generator->setFilter(null);
-                }
+                        if(isset($request->getQueryParams()['quality'])){
+                            $this->io->debug('Set quality: ' . $request->getQueryParams()['quality']);
+                            $generator->setQuality($request->getQueryParams()['quality']);
+                        } else {
+                            $generator->setQuality(AbstractGenerator::JPEG_QUALITY);
+                        }
 
-                $this->io->debug('Start generation: ' . $temp_file->getRealPath());
-                $preview = $generator->generate($temp_file);
-                if(!$preview){
-                    throw new \RuntimeException("Conversion error");
-                }
-            }
-            catch(\Throwable $e){
-                return $this->error($response, $e->getMessage());
-            }
-            finally{
-                if($temp_file->getRealPath()){
-                    $path = $temp_file->getRealPath();
-                    // Close file pointer
-                    $temp_file = null;
-                    @unlink($path);
-                }
-            }
+                        if(!empty($request->getQueryParams()['page_count'])){
+                            $this->io->debug('Set page count: ' . $request->getQueryParams()['page_count']);
+                            $generator->setPageCount($request->getQueryParams()['page_count']);
+                        } else{
+                            $generator->setPageRange(AbstractGenerator::PAGE_RANGE);
+                        }
+                        $this->io->debug('Page range: ' . $generator->getPageRange());
 
-            $this->io->debug('Send preview to client');
+                        if(isset($request->getQueryParams()['filter'])){
+                            $this->io->debug('Set post filter: ' . $request->getQueryParams()['filter']);
+                            $generator->setFilter($request->getQueryParams()['filter']);
+                        } else {
+                            $generator->setFilter(null);
+                        }
 
-            $statusCode = 200;
-            $headers = array('Content-Type: application/octet-stream');
+                        $this->io->debug('Start generation: ' . $temp_file->getRealPath());
+                        $preview = $generator->generate($temp_file);
+                        if(!$preview){
+                            throw new \RuntimeException("Conversion error");
+                        }
+                    }
+                    catch(\Throwable $e){
+                        $this->io->error($e->getMessage());
+                        return $reject($this->error($e->getMessage()));
+                    }
+                    finally{
+                        if($temp_file->getRealPath()){
+                            $path = $temp_file->getRealPath();
+                            // Close file pointer
+                            $temp_file = null;
+                            @unlink($path);
+                        }
+                    }
 
-            $response->writeHead($statusCode, $headers);
-            while(!$preview->eof()){
-                $response->write($preview->fread(self::BUFFER_SIZE));
-            }
-            $response->end();
+                    $this->io->debug('Send preview to client');
 
-            if($preview->getRealPath()){
-                $path = $preview->getRealPath();
-                $preview = null;
-                unlink($path);
-            }
+                    $statusCode = 200;
+                    $headers = array('Content-Type' => 'application/octet-stream');
+                    $stream = new ReadableStream();
+                    $response = new Response($statusCode, $headers, $stream);
 
-            $this->io->debug('Client processed at ' . date('h:i:s'));
+                    while(!$preview->eof()){
+                        $stream->emit('data', $preview->fread(self::BUFFER_SIZE));
+                    }
+
+                    if($preview->getRealPath()){
+                        $path = $preview->getRealPath();
+                        $preview = null;
+                        unlink($path);
+                    }
+
+                    $this->io->writeLn('Client processed at ' . date('h:i:s'));
+
+                    return $resolve($response);
+                });
+
+                // an error occures e.g. on invalid chunked encoded data or an unexpected 'end' event
+                $request->getBody()->on('error', function (\Exception $exception) use ($resolve, $reject) {
+
+                    $this->io->error($exception->getMessage());
+
+                    return $reject($this->error($exception->getMessage()));
+                });
+            });
         });
 
-        $this->io->success('Preview generator is started on port ' . $availableServers[$this->server]['port'] . ' on host ' . $availableServers[$this->server]['host']);
+        $this->io->success(
+            'Preview generator is started on port ' .
+            $availableServers[$this->server]['port'] .
+            ' on host ' .
+            $availableServers[$this->server]['host']
+        );
 
         $this->io->logMemoryUsage();
 
@@ -182,20 +205,12 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
     }
 
     /**
-     * @param \React\Http\Response $response
      * @param $message
-     * @return bool
+     * @return Response
      * @throws \Exception
      */
-    protected function error(\React\Http\Response $response, $message)
+    protected function error($message)
     {
-        $response->writeHead(500, array('Content-Type: text/plain'));
-        $response->end($message);
-
-        if($this->io->isDebug()) {
-            $this->io->error($message);
-        }
-
-        return false;
+        return new Response(500, array('Content-Type' => 'text/plain'), $message);
     }
 }

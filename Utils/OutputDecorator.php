@@ -52,25 +52,17 @@ class OutputDecorator
 
     /**
      * @param $message
-     * @param bool $newline
-     * @param int $options
      */
-    public function writeLn($message, $newline = false, $options = 0)
+    public function writeLn($message)
     {
-        $out_message = '<info>'.(new \DateTime())->format('h:i:s d.m.y').'</info> ' . $message;
-        $this->output->write($out_message, $newline, $options);
         $this->logger->info($message);
     }
 
     /**
      * @param $message
-     * @param bool $newline
-     * @param int $options
      */
-    public function error($message, $newline = false, $options = 0)
+    public function error($message)
     {
-        $out_message = '<error>'.(new \DateTime())->format('h:i:s d.m.y').'</error> ' . $message;
-        $this->output->write($out_message, $newline, $options);
         $this->logger->err($message);
     }
 
@@ -91,12 +83,7 @@ class OutputDecorator
     public function debug($message, $new_line = true)
     {
         if($this->output->isDebug()) {
-            if($new_line){
-                $this->output->writeln($message);
-            }else{
-                $this->output->write($message);
-            }
-
+            $this->output->write($message, $new_line);
             $this->logger->debug($message);
         }
     }
