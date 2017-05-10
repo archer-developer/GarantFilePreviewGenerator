@@ -77,7 +77,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                 $tmp_name = sys_get_temp_dir() . '/preview_attachment_' . $this->server;
                 if(isset($request->getQueryParams()['file_name'])){
 
-                    $this->logger->debug($request->getQueryParams()['file_name'], false);
+                    $this->logger->debug($request->getQueryParams()['file_name']);
 
                     preg_match('/\.([^\.]+)$/', $request->getQueryParams()['file_name'], $extension);
                     if(isset($extension[1])){
@@ -163,12 +163,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
 
                     $statusCode = 200;
                     $headers = array('Content-Type' => 'application/octet-stream');
-                    $stream = new ReadableStream();
-                    $response = new Response($statusCode, $headers, $stream);
-
-                    while(!$preview->eof()){
-                        $stream->emit('data', $preview->fread(self::BUFFER_SIZE));
-                    }
+                    $response = new Response($statusCode, $headers, file_get_contents($preview->getRealPath()));
 
                     if($preview->getRealPath()){
                         $path = $preview->getRealPath();
