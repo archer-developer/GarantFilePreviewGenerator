@@ -8,13 +8,10 @@ use Psr\Http\Message\ServerRequestInterface;
 use React\Http\Response;
 use React\Http\Server;
 use React\Promise\Promise;
-use React\Stream\ReadableStream;
-use React\Tests\Stream\ReadableStreamTest;
 use Symfony\Bridge\Monolog\Logger;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -24,8 +21,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
 {
-    const BUFFER_SIZE = 262144; // 256Kb
-
     /**
      * @var OutputDecorator $io
      */
