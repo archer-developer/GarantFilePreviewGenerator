@@ -178,7 +178,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
             $this->io->error("InvalidArgumentException: " . $e->getMessage());
         }
 
-        $this->io->comment('Server is stopped');
+        $this->io->writeLn('Server is stopped');
     }
 
     /**
