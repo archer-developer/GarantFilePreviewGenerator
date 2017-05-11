@@ -4,6 +4,7 @@ namespace Garant\FilePreviewGeneratorBundle\Command;
 
 use Garant\FilePreviewGeneratorBundle\Generator\AbstractGenerator;
 use Garant\FilePreviewGeneratorBundle\Utils\OutputDecorator;
+use Garant\FilePreviewGeneratorBundle\Utils\MultipartParser;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Http\Response;
 use React\Http\Server;
@@ -85,14 +86,23 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                 $temp_file = new \SplFileObject($tmp_name, 'w');
 
                 // Write data to temp file
-                $request->getBody()->on('data', function ($data) use ($temp_file) {
-                    $temp_file->fwrite($data);
+                $body = '';
+                $request->getBody()->on('data', function ($data) use (&$body) {
+                    $body .= $data;
                 });
 
                 // Convert temp file and send response to client
-                $request->getBody()->on('end', function () use ($resolve, $reject, $request, $temp_file){
+                $request->getBody()->on('end', function () use ($resolve, $reject, $request, $temp_file, &$body){
 
                     try{
+                        $body = MultipartParser::parse_raw_http_request($body, $request->getHeader('content-type')[0]);
+                        if(empty($body['files'])) {
+                            return $reject($this->error('Empty files'));
+                        }
+                        $body = array_shift($body['files']);
+                        $body = preg_replace("/Content-Transfer-Encoding: [a-z\\-]+\r\n\r\n/", '', $body);
+                        $temp_file->fwrite($body);
+
                         // Select generator
                         $this->logger->debug('Select generator: ');
                         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
