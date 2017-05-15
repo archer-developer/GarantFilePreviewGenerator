@@ -102,9 +102,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                         $temp_file = new \SplFileObject($tmp_name, 'w');
 
                         if(!empty($body['files'])) {
-                            $body = $body['files']['file'];
-                            $body = preg_replace("/Content-Transfer-Encoding: [a-z\\-]+\r\n\r\n/", '', $body);
-                            $temp_file->fwrite($body);
+                            $temp_file->fwrite($body['files']['file']);
                         } else {
                             $temp_file->fwrite(file_get_contents($body['file']['tmp_name'][0]));
                         }
