@@ -74,6 +74,7 @@ class MultipartParser
                     // strip any headers
                     $image = preg_replace("/.*\r\n\r\n/", '', $matches[3]);
                     $image = preg_replace("/.*\n\n/", '', $image);
+                    $image = rtrim($image, "\n\r");
 
                     // get current system path and create tempory file name & path
                     $path = sys_get_temp_dir().'/php'.substr(sha1(rand()), 0, 6);
