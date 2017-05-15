@@ -100,9 +100,9 @@ class MultipartParser
                     // match "name" and optional value in between newline sequences
                     preg_match('/name=\"([^\"]*)\"[\n|\r]+([^\n\r].*)?[\r|\n]$/s', $block, $matches);
                     if (preg_match('/^(.*)\[\]$/i', $matches[1], $tmp)) {
-                        $a_data[$tmp[1]][] = $matches[2];
+                        $a_data[$tmp[1]][] = trim($matches[2]);
                     } else {
-                        $a_data[$matches[1]] = $matches[2];
+                        $a_data[$matches[1]] = trim($matches[2]);
                     }
                 }
             }
