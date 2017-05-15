@@ -69,22 +69,6 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                 $this->logger->info('Client accepted at ' . date('h:i:s'));
                 $this->io->logMemoryUsage();
 
-                // Generate temp name to store file body
-                $tmp_name = sys_get_temp_dir() . '/preview_attachment_' . $this->server;
-                if(isset($request->getQueryParams()['file_name'])){
-
-                    $this->logger->debug($request->getQueryParams()['file_name']);
-
-                    preg_match('/\.([^\.]+)$/', $request->getQueryParams()['file_name'], $extension);
-                    if(isset($extension[1])){
-                        $tmp_name .= '.' . $extension[1];
-                    }
-                }
-                $this->logger->debug('Temp name: ' . $tmp_name);
-
-                // Open temp file
-                $temp_file = new \SplFileObject($tmp_name, 'w');
-
                 // Write data to temp file
                 $body = '';
                 $request->getBody()->on('data', function ($data) use (&$body) {
@@ -92,7 +76,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                 });
 
                 // Convert temp file and send response to client
-                $request->getBody()->on('end', function () use ($resolve, $reject, $request, $temp_file, &$body){
+                $request->getBody()->on('end', function () use ($resolve, $reject, $request, &$body){
 
                     try{
                         $body = MultipartParser::parse_raw_http_request($body, $request->getHeader('content-type')[0]);
@@ -101,12 +85,28 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                             return $reject($this->error('Empty file!'));
                         }
 
+                        // Generate temp name to store file body
+                        $tmp_name = sys_get_temp_dir() . '/preview_attachment_' . $this->server;
+                        if(isset($body['file_name'])){
+
+                            $this->logger->debug($body['file_name']);
+
+                            preg_match('/\.([^\.]+)$/', $body['file_name'], $extension);
+                            if(isset($extension[1])){
+                                $tmp_name .= '.' . $extension[1];
+                            }
+                        }
+                        $this->logger->debug('Temp name: ' . $tmp_name);
+
+                        // Open temp file
+                        $temp_file = new \SplFileObject($tmp_name, 'w');
+
                         if(!empty($body['files'])) {
                             $body = $body['files']['file'];
                             $body = preg_replace("/Content-Transfer-Encoding: [a-z\\-]+\r\n\r\n/", '', $body);
                             $temp_file->fwrite($body);
                         } else {
-                            $temp_file->fwrite(file_get_contents($body['file']['tmp_name']));
+                            $temp_file->fwrite(file_get_contents($body['file']['tmp_name'][0]));
                         }
 
                         // Select generator
@@ -122,30 +122,30 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
 
                         // Configure generator
                         $out_format = AbstractGenerator::PREVIEW_FORMAT_JPEG;
-                        if(!empty($request->getQueryParams()['out_format'])){
-                            $out_format = $request->getQueryParams()['out_format'];
+                        if(!empty($body['out_format'])){
+                            $out_format = $body['out_format'];
                         }
                         $this->logger->debug('Set output format: ' . $out_format);
                         $generator->setOutFormat($out_format);
 
-                        if(isset($request->getQueryParams()['quality'])){
-                            $this->logger->debug('Set quality: ' . $request->getQueryParams()['quality']);
-                            $generator->setQuality($request->getQueryParams()['quality']);
+                        if(isset($body['quality'])){
+                            $this->logger->debug('Set quality: ' . $body['quality']);
+                            $generator->setQuality($body['quality']);
                         } else {
                             $generator->setQuality(AbstractGenerator::JPEG_QUALITY);
                         }
 
-                        if(!empty($request->getQueryParams()['page_count'])){
-                            $this->logger->debug('Set page count: ' . $request->getQueryParams()['page_count']);
-                            $generator->setPageCount($request->getQueryParams()['page_count']);
+                        if(!empty($body['page_count'])){
+                            $this->logger->debug('Set page count: ' . $body['page_count']);
+                            $generator->setPageCount($body['page_count']);
                         } else{
                             $generator->setPageRange(AbstractGenerator::PAGE_RANGE);
                         }
                         $this->logger->debug('Page range: ' . $generator->getPageRange());
 
-                        if(isset($request->getQueryParams()['filter'])){
-                            $this->logger->debug('Set post filter: ' . $request->getQueryParams()['filter']);
-                            $generator->setFilter($request->getQueryParams()['filter']);
+                        if(isset($body['filter'])){
+                            $this->logger->debug('Set post filter: ' . $body['filter']);
+                            $generator->setFilter($body['filter']);
                         } else {
                             $generator->setFilter(null);
                         }
