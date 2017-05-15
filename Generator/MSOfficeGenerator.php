@@ -50,10 +50,10 @@ class MSOfficeGenerator extends AbstractOfficeGenerator
      */
     protected function convert($orig_path, $out_format)
     {
-        $format_code = self::EXPORT_FORMATS[$out_format];
-        if(!$format_code){
+        if(!key_exists($out_format, self::EXPORT_FORMATS)){
             throw new \InvalidArgumentException('Incorrect output format: ' . $out_format);
         }
+        $format_code = self::EXPORT_FORMATS[$out_format];
 
         $out_path = $orig_path . '.' . $out_format;
 
