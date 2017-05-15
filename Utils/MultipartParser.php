@@ -82,16 +82,17 @@ class MultipartParser
 
                     // Did the user use the infamous &lt;input name="array[]" for multiple file uploads?
                     if (preg_match('/^(.*)\[\]$/i', $matches[1], $tmp)) {
-                        $a_data[$tmp[1]]['name'][] = $matches[2];
+                        $key = $tmp[1];
                     } else {
-                        $a_data[$matches[1]]['name'][] = $matches[2];
+                        $key = $matches[1];
                     }
 
                     // Create the remainder of the $_FILES super global
-                    $a_data[$tmp[1]]['type'][] = $mime[1];
-                    $a_data[$tmp[1]]['tmp_name'][] = $path;
-                    $a_data[$tmp[1]]['error'][] = ($err === FALSE) ? $err : 0;
-                    $a_data[$tmp[1]]['size'][] = filesize($path);
+                    $a_data[$key]['name'][] = $matches[2];
+                    $a_data[$key]['type'][] = $mime[1];
+                    $a_data[$key]['tmp_name'][] = $path;
+                    $a_data[$key]['error'][] = ($err === FALSE) ? $err : 0;
+                    $a_data[$key]['size'][] = filesize($path);
                 }
                 else
                 {

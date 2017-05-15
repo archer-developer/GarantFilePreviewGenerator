@@ -96,12 +96,18 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
 
                     try{
                         $body = MultipartParser::parse_raw_http_request($body, $request->getHeader('content-type')[0]);
-                        if(empty($body['files'])) {
-                            return $reject($this->error('Empty files'));
+
+                        if(empty($body['files']) && empty($body['file'])) {
+                            return $reject($this->error('Empty file!'));
                         }
-                        $body = array_shift($body['files']);
-                        $body = preg_replace("/Content-Transfer-Encoding: [a-z\\-]+\r\n\r\n/", '', $body);
-                        $temp_file->fwrite($body);
+
+                        if(!empty($body['files'])) {
+                            $body = $body['files']['file'];
+                            $body = preg_replace("/Content-Transfer-Encoding: [a-z\\-]+\r\n\r\n/", '', $body);
+                            $temp_file->fwrite($body);
+                        } else {
+                            $temp_file->fwrite(file_get_contents($body['file']['tmp_name']));
+                        }
 
                         // Select generator
                         $this->logger->debug('Select generator: ');
