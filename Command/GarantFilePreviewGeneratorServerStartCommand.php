@@ -50,7 +50,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
     {
         $formatter = $this->getHelper('formatter');
         $this->logger = $this->getContainer()->get('logger');
-
+        
         $this->io = new OutputDecorator(new SymfonyStyle($input, $cliOutput = $output));
 
         $this->server = $input->getArgument('server');
