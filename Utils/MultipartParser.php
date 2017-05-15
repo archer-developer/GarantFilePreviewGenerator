@@ -71,8 +71,7 @@ class MultipartParser
                     preg_match('/name=\"([^\"]*)\"; filename=\"([^\"]*)\"[\n|\r]+([^\n\r].*)?\r$/s', $block, $matches);
                     preg_match('/Content-Type: (.*)?/', $matches[3], $mime);
 
-                    // match the mime type supplied from the browser
-                    $image = preg_replace('/Content-Type: (.*)[^\n\r]/', '', $matches[3]);
+                    $image = preg_replace("/.*\r\n\r\n/", '', $matches[3]);
 
                     // get current system path and create tempory file name & path
                     $path = sys_get_temp_dir().'/php'.substr(sha1(rand()), 0, 6);
