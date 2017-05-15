@@ -68,10 +68,12 @@ class MultipartParser
                 if (strpos($block, 'filename') !== FALSE)
                 {
                     // match "name" and optional value in between newline sequences
-                    preg_match('/name=\"([^\"]*)\"; filename=\"([^\"]*)\"[\n|\r]+([^\n\r].*)?\r$/s', $block, $matches);
+                    preg_match('/name=\"([^\"]*)\"; filename=\"([^\"]*)\"[\n|\r]+([^\n\r].*)?[\r|\n]$/s', $block, $matches);
                     preg_match('/Content-Type: (.*)?/', $matches[3], $mime);
 
+                    // strip any headers
                     $image = preg_replace("/.*\r\n\r\n/", '', $matches[3]);
+                    $image = preg_replace("/.*\n\n/", '', $image);
 
                     // get current system path and create tempory file name & path
                     $path = sys_get_temp_dir().'/php'.substr(sha1(rand()), 0, 6);
@@ -96,8 +98,7 @@ class MultipartParser
                 else
                 {
                     // match "name" and optional value in between newline sequences
-                    preg_match('/name=\"([^\"]*)\"[\n|\r]+([^\n\r].*)?\r$/s', $block, $matches);
-
+                    preg_match('/name=\"([^\"]*)\"[\n|\r]+([^\n\r].*)?[\r|\n]$/s', $block, $matches);
                     if (preg_match('/^(.*)\[\]$/i', $matches[1], $tmp)) {
                         $a_data[$tmp[1]][] = $matches[2];
                     } else {
