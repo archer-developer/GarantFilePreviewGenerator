@@ -53,8 +53,6 @@ class MultipartParser
             if (empty($block))
                 continue;
 
-            // you'll have to var_dump $block to understand this and maybe replace \n or \r with a visibile char
-
             // parse uploaded files
             if (strpos($block, 'application/octet-stream') !== FALSE)
             {
@@ -72,15 +70,18 @@ class MultipartParser
                     preg_match('/Content-Type: (.*)?/', $matches[3], $mime);
 
                     // strip any headers
-                    $image = preg_replace("/.*\r\n\r\n/", '', $matches[3]);
-                    $image = preg_replace("/.*\n\n/", '', $image);
-                    $image = rtrim($image, "\n\r");
+                    $encoded_body = $matches[3];
+                    $encoded_body_sep = "\r\n\r\n"; //CR+LF pair
+                    if(($binary_start = strpos($encoded_body, $encoded_body_sep)) !== false) {
+                        $encoded_body = substr($encoded_body, $binary_start + strlen($encoded_body_sep));
+                    }
+                    $encoded_body = rtrim($encoded_body, "\n\r");
 
                     // get current system path and create tempory file name & path
                     $path = sys_get_temp_dir().'/php'.substr(sha1(rand()), 0, 6);
 
                     // write temporary file to emulate $_FILES super global
-                    $err = file_put_contents($path, $image);
+                    $err = file_put_contents($path, $encoded_body);
 
                     // Did the user use the infamous &lt;input name="array[]" for multiple file uploads?
                     if (preg_match('/^(.*)\[\]$/i', $matches[1], $tmp)) {
