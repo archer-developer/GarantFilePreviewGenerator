@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: archer
+ * User: Alexander Samusevich
  * Date: 7.8.16
  * Time: 14.58
  */
@@ -9,6 +9,7 @@
 namespace Garant\FilePreviewGeneratorBundle\Utils;
 
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Class OutputDecorator
@@ -23,16 +24,16 @@ class OutputDecorator
 
     /**
      * AbstractGenerator constructor.
-     * @param OutputInterface $output
+     * @param SymfonyStyle $output
      */
-    public function __construct(OutputInterface $output)
+    public function __construct(SymfonyStyle $output)
     {
         $this->output = $output;
     }
 
-    public function __call($name, $arguments)
+    public function __call($method, $args)
     {
-        return $this->output->$name(...$arguments);
+        $this->output->$method(...$args);
     }
 
     /**
@@ -54,11 +55,15 @@ class OutputDecorator
     public function debug($message, $new_line = true)
     {
         if($this->output->isDebug()) {
-            if($new_line){
-                $this->output->writeln($message);
-            }else{
-                $this->output->write($message);
-            }
+            $this->output->write($message, $new_line);
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDebug()
+    {
+        return $this->output->isDebug();
     }
 }

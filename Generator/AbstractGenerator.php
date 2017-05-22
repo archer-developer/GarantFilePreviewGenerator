@@ -1,18 +1,18 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: archer
+ * User: Alexander Samusevich
  * Date: 4.6.16
  * Time: 14.58
  */
 
 namespace Garant\FilePreviewGeneratorBundle\Generator;
 
-use Garant\FilePreviewGeneratorBundle\Utils\OutputDecorator;
 use Liip\ImagineBundle\Binary\Loader\LoaderInterface;
 use Liip\ImagineBundle\Imagine\Filter\FilterManager;
 use Liip\ImagineBundle\Model\Binary;
 
+use Symfony\Bridge\Monolog\Logger;
 use Symfony\Component\Process\Process;
 
 /**
@@ -28,18 +28,35 @@ abstract class AbstractGenerator
     const PREVIEW_FORMAT_TEXT = 'txt';
 
     // Skip to pdf converting
-    const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'bmp'];
+    const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
 
     // Resolution to convert vector (like PDF) to bitmap image
     const PDF_RESOLUTION = 100;
 
-    // Preview output format
+    // Default JPEG quality
+    const JPEG_QUALITY = 100;
+
+    // Default page range
+    const PAGE_RANGE = '0';
+
+    /**
+     * @var string - Preview output format
+     */
     protected $out_format = self::PREVIEW_FORMAT_JPEG;
 
-    // JPEG quality
+    /**
+     * @var int - JPEG quality
+     */
     protected $quality = 100;
 
-    // LiipImagine filter to post processing
+    /**
+     * @var string - Range of pages to convert
+     */
+    protected $page_range = '0';
+
+    /**
+     * @var string - LiipImagine filter to post processing
+     */
     protected $filter;
 
     /**
@@ -53,9 +70,9 @@ abstract class AbstractGenerator
     protected $binary_loader;
 
     /**
-     * @var OutputDecorator
+     * @var Logger
      */
-    protected $output;
+    protected $logger;
 
     /**
      * AbstractGenerator constructor.
@@ -77,11 +94,11 @@ abstract class AbstractGenerator
     abstract public function generate(\SplFileObject $file);
 
     /**
-     * @param OutputDecorator $output
+     * @param Logger $logger
      */
-    public function setOutput(OutputDecorator $output)
+    public function setLogger(Logger $logger)
     {
-        $this->output = $output;
+        $this->logger = $logger;
     }
 
     /**
@@ -110,6 +127,32 @@ abstract class AbstractGenerator
     }
 
     /**
+     * @param string $page_range
+     */
+    public function setPageRange($page_range)
+    {
+        $this->page_range = $page_range;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPageRange()
+    {
+        return $this->page_range;
+    }
+
+    /**
+     * Convert pages from 0 to $page_count
+     * @param string $page_count
+     */
+    public function setPageCount($page_count)
+    {
+        $max_page = intval($page_count) - 1;
+        $this->page_range = ($max_page > 0) ? '0-' . $max_page : '0';
+    }
+
+    /**
      * Process preview image
      *
      * @param string $path - absolute path to preview image
@@ -117,10 +160,8 @@ abstract class AbstractGenerator
      */
     protected function postProcess($path)
     {
-        $this->output->debug('Post processing: ', false);
-
         if(!$this->filter){
-            $this->output->debug('skipped');
+            $this->logger->debug('Post processing: skipped');
             return $path;
         }
 
@@ -129,7 +170,7 @@ abstract class AbstractGenerator
          */
         $binary = $this->binary_loader->find($path);
 
-        $this->output->debug('apply filter ' . $this->filter);
+        $this->logger->debug('Post processing: apply filter ' . $this->filter);
 
         $binary = $this->filter_manager->applyFilter($binary, $this->filter);
         file_put_contents($path, $binary->getContent());
@@ -145,15 +186,16 @@ abstract class AbstractGenerator
      */
     protected function generatePreview($file_path, $preview_path, $density = 100)
     {
-        // Create first page screen shot
-        $convert_cmd = "convert -density {$density} -quality {$this->quality} -background white -alpha remove";
+        // Create page range screen shot
+        $convert_cmd = "convert -density {$density} -quality {$this->quality} -background white -alpha remove -append";
+        $convert_cmd = $convert_cmd . " {$file_path} " . $preview_path;
 
-        $this->output->debug($convert_cmd);
+        $this->logger->debug($convert_cmd);
 
-        $process = new Process($convert_cmd . " {$file_path} " . $preview_path);
+        $process = new Process($convert_cmd);
         $process->run();
         if(!file_exists($preview_path) || $process->getExitCode() > 0){
-            $this->output->debug('Error. Exit code: ' . $process->getExitCode());
+            $this->logger->debug('Error. Exit code: ' . $process->getExitCode());
             return false;
         }
 

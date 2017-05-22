@@ -13,8 +13,7 @@
     "require": {
         "ext-imagick": "*",
         "react/http": "dev-master",
-        "liip/imagine-bundle": "^1.5",
-        "guzzlehttp/guzzle": "^6.2"
+        "liip/imagine-bundle": "^1.5"
     },
     "autoload": {
         "psr-4": { "Garant\\FilePreviewGeneratorBundle\\": "" }

@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: archer
+ * User: Alexander Samusevich
  * Date: 6.6.16
  * Time: 14.58
  */
@@ -50,26 +50,26 @@ class MSOfficeGenerator extends AbstractOfficeGenerator
      */
     protected function convert($orig_path, $out_format)
     {
-        $format_code = self::EXPORT_FORMATS[$out_format];
-        if(!$format_code){
+        if(!key_exists($out_format, self::EXPORT_FORMATS)){
             throw new \InvalidArgumentException('Incorrect output format: ' . $out_format);
         }
+        $format_code = self::EXPORT_FORMATS[$out_format];
 
         $out_path = $orig_path . '.' . $out_format;
 
-        $this->output->debug('Create COM object ', false);
+        $this->logger->debug('COM object building');
 
         $word = new \COM("Word.Application");
         if(!$word){
             throw new \RuntimeException('COM object not created!');
         }
-        $this->output->debug('success');
-        $this->output->debug('Open document');
+        $this->logger->debug('Success');
+        $this->logger->debug('Open document');
         try {
             if ($out_format != self::PREVIEW_FORMAT_PDF) {
 
                 $word->Documents->Open($orig_path, false, true);
-                $this->output->debug('Save document as ' . $out_path);
+                $this->logger->debug('Save document as ' . $out_path);
                 $word->ActiveDocument->SaveAs2($out_path, $format_code);
             } else {
 
@@ -79,7 +79,7 @@ class MSOfficeGenerator extends AbstractOfficeGenerator
                 }
                 $word->Documents->Open($orig_path, false, true);
 
-                $this->output->debug('ExportAsFixedFormat ' . $out_path . ' as ' . $format_code);
+                $this->logger->debug('ExportAsFixedFormat ' . $out_path . ' as ' . $format_code);
                 //@todo Use range of pages (https://msdn.microsoft.com/en-us/library/bb243314(v=office.12).aspx)
                 $word->ActiveDocument->ExportAsFixedFormat($out_path, $format_code, false, 0, 0, 0, 0, 7, true, true, 2, true, true, false);
             }
@@ -89,7 +89,7 @@ class MSOfficeGenerator extends AbstractOfficeGenerator
             }
         }
         finally{
-            $this->output->debug('Destroy COM object');
+            $this->logger->debug('Destroy COM object');
             // Close word instance without save changes
             $word->Quit(false);
             // Release resource

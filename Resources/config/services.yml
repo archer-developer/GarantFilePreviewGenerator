@@ -4,12 +4,13 @@ parameters:
     garant_file_preview_generator.libreoffice_generator.class: Garant\FilePreviewGeneratorBundle\Generator\LibreOfficeGenerator
     garant_file_preview_generator.msoffice_generator.class: Garant\FilePreviewGeneratorBundle\Generator\MSOfficeGenerator
     garant_file_preview_generator.binary.loader.filesystem_class: Garant\FilePreviewGeneratorBundle\Binary\Loader\FileSystemLoader
+    garant_file_preview_generator.supervisor_class: Garant\FilePreviewGeneratorBundle\Supervisor\Supervisor
 
 services:
     garant_file_preview_generator.binary.loader.filesystem:
         class: '%garant_file_preview_generator.binary.loader.filesystem_class%'
         #@todo Fix the third argument
-        arguments: ['@liip_imagine.mime_type_guesser', '@liip_imagine.extension_guesser', '%kernel.root_dir%/../web']
+        arguments: ['@liip_imagine.mime_type_guesser', '@liip_imagine.extension_guesser', '%kernel.root_dir%/../web', '@liip_imagine.binary.locator.filesystem']
 
     garant_file_preview_generator.remote_client:
         class: '%garant_file_preview_generator.remote_client.class%'
@@ -20,10 +21,14 @@ services:
     garant_file_preview_generator.libreoffice_generator:
         class: '%garant_file_preview_generator.libreoffice_generator.class%'
         arguments: ["@liip_imagine.filter.manager", "@garant_file_preview_generator.binary.loader.filesystem"]
+        calls:
+            - [setLogger, ["@logger"]]
 
     garant_file_preview_generator.msoffice_generator:
-          class: '%garant_file_preview_generator.msoffice_generator.class%'
-          arguments: ["@liip_imagine.filter.manager", "@garant_file_preview_generator.binary.loader.filesystem"]
+        class: '%garant_file_preview_generator.msoffice_generator.class%'
+        arguments: ["@liip_imagine.filter.manager", "@garant_file_preview_generator.binary.loader.filesystem"]
+        calls:
+            - [setLogger, ["@logger"]]
 
     garant_file_preview_generator.shm.predis:
           class: Garant\FilePreviewGeneratorBundle\SharedMemory\PredisAdapter
