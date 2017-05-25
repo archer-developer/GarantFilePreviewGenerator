@@ -105,6 +105,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                             $temp_file->fwrite($body['files']['file']);
                         } else {
                             $temp_file->fwrite(file_get_contents($body['file']['tmp_name'][0]));
+                            unlink($body['file']['tmp_name'][0]);
                         }
 
                         // Select generator
