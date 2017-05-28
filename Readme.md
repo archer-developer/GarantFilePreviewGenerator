@@ -84,7 +84,7 @@ You can add remote servers:
         # To start generator server use "garant:file-preview-generator:server-start <server_name>" command
         #servers:
         #    local_unix:
-        #        host: 127.0.0.1
+        #        host: 0.0.0.0
         #        port: 9010
         #
         #    remote_windows:
@@ -144,6 +144,11 @@ To generate preview you can use generator service. Available services:
 	// see AbstractGenerator class constants
 	$generator->setOutFormat(AbstractGenerator::PREVIEW_FORMAT_PDF);
     $temp_preview_file = $generator->generate($temp_file);
+    
+    // Optionally, you can convert range of pages
+    // $generator->setPageRange('0-2');
+    // Or set number of pages
+    // $generator->setPageCount(3);
     
 	dump($temp_preview_file);
 	
