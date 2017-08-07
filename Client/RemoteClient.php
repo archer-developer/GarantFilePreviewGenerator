@@ -29,10 +29,19 @@ class RemoteClient extends AbstractGenerator
     const SELECT_ALGORITHM_ROUND_ROBIN = 'round_robin';
 
     /**
+     * @inheritdoc
+     */
+    public function support(\SplFileObject $file, $out_format): bool
+    {
+        return true;
+    }
+
+    /**
      * @param \SplFileObject $file - input file
+     * @param string $out_format
      * @return \SplFileObject - file preview
      */
-    public function generate(\SplFileObject $file)
+    public function generate(\SplFileObject $file, $out_format)
     {
         $availableServers = $this->container->getParameter('garant_file_preview_generator.servers');
         $selectAlgorithm = $this->container->getParameter('garant_file_preview_generator.server_select_algorithm');
@@ -75,17 +84,18 @@ class RemoteClient extends AbstractGenerator
 
         $request = $client->post()
             ->addHeader('Content-Type', 'multipart/form-data')
-            ->setPostField('out_format', $this->out_format)
-            ->setPostField('quality', $this->quality);
+            ->setPostField('out_format', $out_format)
+            ->setPostField('quality', $this->quality)
+            ->setPostField('file_name', $file->getFilename())
+            ->addPostFile('file', $file->getRealPath())
+        ;
 			
 		if(!empty($this->filter)){
 			$request->setPostField('filter', $this->filter);
 		}
-			
-		$request
-            ->setPostField('file_name', $file->getFilename())
-            ->addPostFile('file', $file->getRealPath())
-        ;
+        if(!empty($this->page_range)) {
+            $request->setPostField('page_range', $this->page_range);
+        }
 
         /**
          * @var Response $response

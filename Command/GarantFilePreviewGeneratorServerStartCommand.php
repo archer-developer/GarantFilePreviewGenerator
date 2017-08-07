@@ -108,25 +108,22 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                             unlink($body['file']['tmp_name'][0]);
                         }
 
-                        // Select generator
-                        $this->logger->debug('Select generator: ');
-                        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-                            $this->logger->debug('msoffice_generator');
-                            $generator = $this->getContainer()->get('garant_file_preview_generator.msoffice_generator');
-                        }
-                        else{
-                            $this->logger->debug('libreoffice_generator');
-                            $generator = $this->getContainer()->get('garant_file_preview_generator.libreoffice_generator');
-                        }
-
-                        // Configure generator
                         $out_format = AbstractGenerator::PREVIEW_FORMAT_JPEG;
                         if(!empty($body['out_format'])){
                             $out_format = $body['out_format'];
                         }
                         $this->logger->debug('Set output format: ' . $out_format);
-                        $generator->setOutFormat($out_format);
 
+                        // Select generator
+                        $this->logger->debug('Select generator: ');
+
+                        $generatorFactory = $this->getContainer()->get('garant_file_preview_generator.generator_factory');
+                        $generator = $generatorFactory->getGenerator($temp_file, $out_format);
+                        if(!$generator) {
+                            throw new \RuntimeException("Unsupported input or output format");
+                        }
+
+                        // Configure generator
                         if(isset($body['quality'])){
                             $this->logger->debug('Set quality: ' . $body['quality']);
                             $generator->setQuality($body['quality']);
@@ -150,7 +147,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                         }
 
                         $this->logger->debug('Start generation: ' . $temp_file->getRealPath());
-                        $preview = $generator->generate($temp_file);
+                        $preview = $generator->generate($temp_file, $out_format);
                         if(!$preview){
                             throw new \RuntimeException("Conversion error");
                         }

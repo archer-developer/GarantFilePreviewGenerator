@@ -89,9 +89,17 @@ abstract class AbstractGenerator
      * Generate file preview in required format
      *
      * @param \SplFileObject $file
+     * @param string $out_format
      * @return \SplFileObject
      */
-    abstract public function generate(\SplFileObject $file);
+    abstract public function generate(\SplFileObject $file, $out_format);
+
+    /**
+     * @param \SplFileObject $file
+     * @param string $out_format
+     * @return bool
+     */
+    abstract public function support(\SplFileObject $file, $out_format): bool;
 
     /**
      * @param Logger $logger
@@ -116,14 +124,6 @@ abstract class AbstractGenerator
     public function setFilter($filter)
     {
         $this->filter = $filter;
-    }
-
-    /**
-     * @param string $format
-     */
-    public function setOutFormat($format)
-    {
-        $this->out_format = $format;
     }
 
     /**
@@ -153,6 +153,30 @@ abstract class AbstractGenerator
     }
 
     /**
+     * @param string $file_path
+     * @param string $preview_path
+     * @param integer $density
+     * @return bool
+     */
+    protected function generateImagePreview($file_path, $preview_path, $density = 100)
+    {
+        // Create page range screen shot
+        $convert_cmd = "convert -density {$density} -quality {$this->quality} -background white -alpha remove -append";
+        $convert_cmd = $convert_cmd . " {$file_path} " . $preview_path;
+
+        $this->logger->debug($convert_cmd);
+
+        $process = new Process($convert_cmd);
+        $process->run();
+        if(!file_exists($preview_path) || $process->getExitCode() > 0){
+            $this->logger->debug('Error. Exit code: ' . $process->getExitCode());
+            throw new \RuntimeException('Cannot create image preview');
+        }
+
+        $this->postProcess($preview_path);
+    }
+
+    /**
      * Process preview image
      *
      * @param string $path - absolute path to preview image
@@ -179,27 +203,16 @@ abstract class AbstractGenerator
     }
 
     /**
-     * @param string $file_path
-     * @param string $preview_path
-     * @param integer $density
+     * @param \SplFileObject $file
+     * @param $out_format
      * @return string
      */
-    protected function generatePreview($file_path, $preview_path, $density = 100)
+    protected function generatePreviewPath(\SplFileObject $file, $out_format)
     {
-        // Create page range screen shot
-        $convert_cmd = "convert -density {$density} -quality {$this->quality} -background white -alpha remove -append";
-        $convert_cmd = $convert_cmd . " {$file_path} " . $preview_path;
-
-        $this->logger->debug($convert_cmd);
-
-        $process = new Process($convert_cmd);
-        $process->run();
-        if(!file_exists($preview_path) || $process->getExitCode() > 0){
-            $this->logger->debug('Error. Exit code: ' . $process->getExitCode());
-            return false;
+        $preview_path = $file->getRealPath() . '.' . $out_format;
+        if(file_exists($preview_path)){
+            unlink($preview_path);
         }
-
-        $this->postProcess($preview_path);
 
         return $preview_path;
     }

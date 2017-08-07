@@ -1,9 +1,12 @@
 parameters:
     garant_file_preview_generator.remote_client.connect_timeout: 5
     garant_file_preview_generator.remote_client.class: Garant\FilePreviewGeneratorBundle\Client\RemoteClient
-    garant_file_preview_generator.libreoffice_generator.class: Garant\FilePreviewGeneratorBundle\Generator\LibreOfficeGenerator
-    garant_file_preview_generator.msoffice_generator.class: Garant\FilePreviewGeneratorBundle\Generator\MSOfficeGenerator
     garant_file_preview_generator.binary.loader.filesystem_class: Garant\FilePreviewGeneratorBundle\Binary\Loader\FileSystemLoader
+    garant_file_preview_generator.generator_factory.class: Garant\FilePreviewGeneratorBundle\Generator\Factory\GeneratorFactory
+    garant_file_preview_generator.libreoffice_generator.class: Garant\FilePreviewGeneratorBundle\Generator\LibreOfficeGenerator
+    garant_file_preview_generator.msword_generator.class: Garant\FilePreviewGeneratorBundle\Generator\MSWordGenerator
+    garant_file_preview_generator.image_to_image_generator.class: Garant\FilePreviewGeneratorBundle\Generator\ImageToImageGenerator
+    garant_file_preview_generator.pdf_to_image_generator.class: Garant\FilePreviewGeneratorBundle\Generator\PDFToImageGenerator
     garant_file_preview_generator.supervisor_class: Garant\FilePreviewGeneratorBundle\Supervisor\Supervisor
 
 services:
@@ -18,17 +21,40 @@ services:
         calls:
             - [setContainer, ["@service_container"]]
 
+    garant_file_preview_generator.generator_factory:
+        class: '%garant_file_preview_generator.generator_factory.class%'
+
     garant_file_preview_generator.libreoffice_generator:
         class: '%garant_file_preview_generator.libreoffice_generator.class%'
         arguments: ["@liip_imagine.filter.manager", "@garant_file_preview_generator.binary.loader.filesystem"]
         calls:
             - [setLogger, ["@logger"]]
+        tags:
+            - {name: "garant_file_preview_generator.generator"}
 
-    garant_file_preview_generator.msoffice_generator:
-        class: '%garant_file_preview_generator.msoffice_generator.class%'
+    garant_file_preview_generator.msword_generator:
+        class: '%garant_file_preview_generator.msword_generator.class%'
         arguments: ["@liip_imagine.filter.manager", "@garant_file_preview_generator.binary.loader.filesystem"]
         calls:
             - [setLogger, ["@logger"]]
+        tags:
+            - {name: "garant_file_preview_generator.generator"}
+
+    garant_file_preview_generator.image_to_image_generator:
+        class: '%garant_file_preview_generator.image_to_image_generator.class%'
+        arguments: ["@liip_imagine.filter.manager", "@garant_file_preview_generator.binary.loader.filesystem"]
+        calls:
+            - [setLogger, ["@logger"]]
+        tags:
+            - {name: "garant_file_preview_generator.generator"}
+
+    garant_file_preview_generator.pdf_to_image_generator:
+        class: '%garant_file_preview_generator.pdf_to_image_generator.class%'
+        arguments: ["@liip_imagine.filter.manager", "@garant_file_preview_generator.binary.loader.filesystem"]
+        calls:
+            - [setLogger, ["@logger"]]
+        tags:
+            - {name: "garant_file_preview_generator.generator"}
 
     garant_file_preview_generator.shm.predis:
           class: Garant\FilePreviewGeneratorBundle\SharedMemory\PredisAdapter
