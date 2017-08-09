@@ -99,7 +99,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                                 $tmp_name .= '.' . $extension[1];
                             }
                         } else {
-                            $this->logger->warning('Parameter "file_name" not found! Set this parameter to increase mime-type detecting.');
+                            $this->logger->warning('Parameter "file_name" not found! Set this parameter to increase mime-type detection.');
                         }
                         $this->logger->debug('Temp name: ' . $tmp_name);
 
