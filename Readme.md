@@ -3,7 +3,7 @@
 This bundle provides classes to generate preview image for office files like .doc, .docx, .xls and others. 
 It contains client and server that let use the bundle both locally and remotely.
 
-## System requiremnts (for Microsoft Windows)
+## System requirements (for Microsoft Windows)
 
 A) Microsoft Word must be installed. Also you need to configure COM-objects
 From the Start menu, click Run and type Dcomcnfg.exe.
@@ -115,40 +115,40 @@ Also you can start server with -vvv flag to check memory usage and get other inf
   
 ### Services
 
-To generate preview you can use generator service. Available services:
+To generate preview you can use specific generator. Use the generator factory to create a generator that you need:
 
     garant_file_preview_generator.remote_client - Remote client. 
-    garant_file_preview_generator.libreoffice_generator - Local generator based on LibreOffice
-    garant_file_preview_generator.msoffice_generator - Local generator based on MS Office and COM 
+    garant_file_preview_generator.generator_factory - Factory service.
 
 ### Example
 
     $temp_file = new \SplFileObject('test.docx');
 
-    $generator = $this->container->get('garant_file_preview_generator.libreoffice_generator');
-    $temp_preview_file = $generator->generate($temp_file);
-    if(!$temp_preview_file){
+    $factory = $this->container->get('garant_file_preview_generator.generator_factory');
+    $generator = $factory->get($temp_file, AbstractGenerator::PREVIEW_FORMAT_JPEG);
+    $jpeg_preview_file = $generator->generate($temp_file, AbstractGenerator::PREVIEW_FORMAT_JPEG);
+    if(!$jpeg_preview_file){
         $this->get('logger')->err('Preview attachment: Preview generation error');
         throw new \RuntimeException('Preview generation error');
     }
     
-    dump($temp_preview_file);
+    dump($jpeg_preview_file);
     
     // Generate filtered preview
 	$generator->setFilter('avatar_square');
-    $temp_preview_file = $generator->generate($temp_file);
+    $jpeg_preview_file = $generator->generate($temp_file, AbstractGenerator::PREVIEW_FORMAT_JPEG);
     
-	dump($temp_preview_file);
+	dump($jpeg_preview_file);
 	
 	// Generate preview in PDF or other format
 	// see AbstractGenerator class constants
-	$generator->setOutFormat(AbstractGenerator::PREVIEW_FORMAT_PDF);
-    $temp_preview_file = $generator->generate($temp_file);
+	$generator = $factory->get($temp_file, AbstractGenerator::PREVIEW_FORMAT_PDF);
+    $pdf_preview_file = $generator->generate($temp_file, AbstractGenerator::PREVIEW_FORMAT_PDF);
     
     // Optionally, you can convert range of pages
     // $generator->setPageRange('0-2');
     // Or set number of pages
     // $generator->setPageCount(3);
     
-	dump($temp_preview_file);
+	dump($pdf_preview_file);
 	

@@ -40,7 +40,7 @@ abstract class AbstractMSOfficeGenerator extends AbstractGenerator
 
         $mime_type = mime_content_type($file->getRealPath());
 
-        return (in_array($mime_type, self::ALLOWED_INPUT_FORMATS) && (key_exists($out_format, self::EXPORT_FORMATS) || $this->isImage($out_format)));
+        return (in_array($mime_type, static::ALLOWED_INPUT_FORMATS) && (key_exists($out_format, static::EXPORT_FORMATS) || $this->isImage($out_format)));
     }
 
     /**

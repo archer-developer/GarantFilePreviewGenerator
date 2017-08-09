@@ -23,7 +23,7 @@ class GeneratorFactoryPass implements CompilerPassInterface
         $factoryService = $container->getDefinition('garant_file_preview_generator.generator_factory');
 
         foreach($generators as $serviceReference) {
-            $factoryService->addMethodCall('addGenerator', $serviceReference);
+            $factoryService->addMethodCall('addGenerator', [$serviceReference]);
         }
     }
 }

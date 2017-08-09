@@ -8,6 +8,10 @@
 
 namespace Garant\FilePreviewGeneratorBundle\Utils;
 
+/**
+ * Class MultipartParser
+ * @todo Multipart Parser will be develop in ReactPHP v0.8.0
+ */
 class MultipartParser
 {
     /**
@@ -24,6 +28,7 @@ class MultipartParser
      *
      * @param   string $input
      * @param   string $content_type
+     *
      * @return  array  Associative array of request data
      */
     public static function parse_raw_http_request($input, $content_type)

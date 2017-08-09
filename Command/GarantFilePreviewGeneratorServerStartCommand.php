@@ -79,7 +79,10 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                 $request->getBody()->on('end', function () use ($resolve, $reject, $request, &$body){
 
                     try{
+                        $this->logger->debug('Read HTTP body...');
+                        $this->io->logMemoryUsage();
                         $body = MultipartParser::parse_raw_http_request($body, $request->getHeader('content-type')[0]);
+                        $this->io->logMemoryUsage();
 
                         if(empty($body['files']) && empty($body['file'])) {
                             return $reject($this->error('Empty file!'));
@@ -95,6 +98,8 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                             if(isset($extension[1])){
                                 $tmp_name .= '.' . $extension[1];
                             }
+                        } else {
+                            $this->logger->warning('Parameter "file_name" not found! Set this parameter to increase mime-type detecting.');
                         }
                         $this->logger->debug('Temp name: ' . $tmp_name);
 
@@ -102,11 +107,12 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                         $temp_file = new \SplFileObject($tmp_name, 'w');
 
                         if(!empty($body['files'])) {
-                            $temp_file->fwrite($body['files']['file']);
+                            $temp_file->fwrite(array_shift($body['files']));
                         } else {
                             $temp_file->fwrite(file_get_contents($body['file']['tmp_name'][0]));
                             unlink($body['file']['tmp_name'][0]);
                         }
+                        $this->logger->debug('Detect input format: ' . mime_content_type($temp_file->getRealPath()));
 
                         $out_format = AbstractGenerator::PREVIEW_FORMAT_JPEG;
                         if(!empty($body['out_format'])){
@@ -115,13 +121,12 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                         $this->logger->debug('Set output format: ' . $out_format);
 
                         // Select generator
-                        $this->logger->debug('Select generator: ');
-
                         $generatorFactory = $this->getContainer()->get('garant_file_preview_generator.generator_factory');
-                        $generator = $generatorFactory->getGenerator($temp_file, $out_format);
+                        $generator = $generatorFactory->get($temp_file, $out_format);
                         if(!$generator) {
                             throw new \RuntimeException("Unsupported input or output format");
                         }
+                        $this->logger->debug('Selected generator: '.get_class($generator));
 
                         // Configure generator
                         if(isset($body['quality'])){
@@ -218,6 +223,6 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
      */
     protected function error($message)
     {
-        return new Response(500, array('Content-Type' => 'text/plain'), $message);
+        return new Response(500, array('Content-Type' => 'text/plain'), $message, '1.1', $message);
     }
 }
