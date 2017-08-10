@@ -24,6 +24,16 @@ class GarantFilePreviewGeneratorExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
+        $env = $container->getParameter('kernel.environment');
+        if($env == 'test') {
+            $config['servers'] = [
+                'test' => [
+                    'host' => '127.0.0.1',
+                    'port' => '9000',
+                ],
+            ];
+        }
+
         $container->setParameter('garant_file_preview_generator.servers', $config['servers']);
         $container->setParameter('garant_file_preview_generator.server_select_algorithm', $config['server_select_algorithm']);
 

@@ -58,6 +58,10 @@ class MSWordGenerator extends AbstractMSOfficeGenerator
                 throw new \RuntimeException('Convert failed!');
             }
         }
+        catch(\Throwable $e) {
+            $class = get_class($e);
+            throw new $class(iconv('CP1251', 'UTF-8', $e->getMessage()."\nFormat code:".$format_code."\nInput: ".$orig_path."\nOutput: ".$out_path));
+        }
         finally{
             $this->logger->debug('Destroy COM object');
             // Close word instance without save changes
