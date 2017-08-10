@@ -62,7 +62,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
 
         $loop = \React\EventLoop\Factory::create();
         $socket = new \React\Socket\Server($availableServers[$this->server]['host'] . ':' . $availableServers[$this->server]['port'], $loop);
-        $http = new Server($socket, function (ServerRequestInterface $request) {
+        $http = new Server(function (ServerRequestInterface $request) {
 
             return new Promise(function ($resolve, $reject) use ($request) {
 
@@ -196,6 +196,8 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                 });
             });
         });
+
+        $http->listen($socket);
 
         $this->io->success(
             'Preview generator is started on port ' .
