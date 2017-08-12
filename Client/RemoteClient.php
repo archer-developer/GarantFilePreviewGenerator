@@ -37,11 +37,9 @@ class RemoteClient extends AbstractGenerator
     }
 
     /**
-     * @param \SplFileObject $file - input file
-     * @param string $out_format
-     * @return \SplFileObject - file preview
+     * @inheritdoc
      */
-    public function generate(\SplFileObject $file, $out_format)
+    public function generate(\SplFileObject $file, $out_format): \SplFileObject
     {
         $availableServers = $this->container->getParameter('garant_file_preview_generator.servers');
         $selectAlgorithm = $this->container->getParameter('garant_file_preview_generator.server_select_algorithm');

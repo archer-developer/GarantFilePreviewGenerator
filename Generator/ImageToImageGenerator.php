@@ -23,18 +23,14 @@ class ImageToImageGenerator extends AbstractGenerator
     }
 
     /**
-     * Generate file preview in required format
-     *
-     * @param \SplFileObject $file
-     * @param string $out_format
-     * @return \SplFileObject
+     * @inheritdoc
      */
-    public function generate(\SplFileObject $file, $out_format)
+    public function generate(\SplFileObject $file, $out_format): \SplFileObject
     {
         $file->rewind();
 
         $preview_path = $this->generatePreviewPath($file, $out_format);
-        $preview_path = $this->generateImagePreview($file->getRealPath(), $preview_path);
+        $this->generateImagePreview($file->getRealPath(), $preview_path);
 
         return new \SplFileObject($preview_path);
     }

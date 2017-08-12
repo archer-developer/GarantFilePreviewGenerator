@@ -28,9 +28,7 @@ abstract class AbstractMSOfficeGenerator extends AbstractGenerator
     const ALLOWED_INPUT_FORMATS = [];
 
     /**
-     * @param \SplFileObject $file
-     * @param string $out_format
-     * @return bool
+     * @inheritdoc
      */
     public function support(\SplFileObject $file, $out_format): bool
     {
@@ -44,13 +42,9 @@ abstract class AbstractMSOfficeGenerator extends AbstractGenerator
     }
 
     /**
-     * Generate file preview in required format
-     *
-     * @param \SplFileObject $file
-     * @param string $out_format
-     * @return \SplFileObject
+     * @inheritdoc
      */
-    public function generate(\SplFileObject $file, $out_format)
+    public function generate(\SplFileObject $file, $out_format): \SplFileObject
     {
         $file->rewind();
 

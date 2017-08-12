@@ -90,13 +90,15 @@ abstract class AbstractGenerator
      *
      * @param \SplFileObject $file
      * @param string $out_format
+     *
      * @return \SplFileObject
      */
-    abstract public function generate(\SplFileObject $file, $out_format);
+    abstract public function generate(\SplFileObject $file, $out_format): \SplFileObject;
 
     /**
      * @param \SplFileObject $file
      * @param string $out_format
+     *
      * @return bool
      */
     abstract public function support(\SplFileObject $file, $out_format): bool;

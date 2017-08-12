@@ -27,6 +27,11 @@ class GeneratorTest extends WebTestCase
         $this->factory = self::$kernel->getContainer()->get('garant_file_preview_generator.generator_factory');
     }
 
+    public function testImageToImage()
+    {
+        $this->generate('test.jpeg', AbstractGenerator::PREVIEW_FORMAT_JPEG);
+    }
+
     public function testXLSXToTXT()
     {
         $this->generate('test.xlsx', AbstractGenerator::PREVIEW_FORMAT_TEXT);
@@ -46,8 +51,6 @@ class GeneratorTest extends WebTestCase
     {
         $this->generate('test.xlsx', AbstractGenerator::PREVIEW_FORMAT_HTML);
     }
-
-
 
     public function testPlainToJPEG()
     {
@@ -72,6 +75,11 @@ class GeneratorTest extends WebTestCase
     public function testDocxToHTML()
     {
         $this->generate('test.docx', AbstractGenerator::PREVIEW_FORMAT_HTML);
+    }
+
+    public function testRTFToHTML()
+    {
+        $this->generate('test.rtf', AbstractGenerator::PREVIEW_FORMAT_HTML);
     }
 
     public function testDocxToPlain()

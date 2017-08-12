@@ -59,13 +59,9 @@ class LibreOfficeGenerator extends AbstractGenerator
     }
 
     /**
-     * Generate file preview in required format
-     *
-     * @param \SplFileObject $file
-     * @param string $out_format
-     * @return \SplFileObject
+     * @inheritdoc
      */
-    public function generate(\SplFileObject $file, $out_format)
+    public function generate(\SplFileObject $file, $out_format): \SplFileObject
     {
         $file->rewind();
 

@@ -10,6 +10,7 @@
 namespace Garant\FilePreviewGeneratorBundle\Tests;
 
 use Garant\FilePreviewGeneratorBundle\Client\RemoteClient;
+use Garant\FilePreviewGeneratorBundle\Generator\AbstractGenerator;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Process\Process;
 
@@ -38,6 +39,39 @@ class RemoteClientTest extends KernelTestCase
 
     public function testIndex()
     {
+        $file = new \SplFileObject(__DIR__.'/files/test.txt');
 
+        $jpeg_preview_file = $this->client->generate($file, AbstractGenerator::PREVIEW_FORMAT_JPEG);
+
+        $this->assertInstanceOf(\SplFileObject::class, $jpeg_preview_file);
+
+        $data = $jpeg_preview_file->fread(1024);
+
+        $this->assertGreaterThan(0, strlen($data));
+    }
+
+    public function testCustomFormat()
+    {
+        $file = new \SplFileObject(__DIR__.'/files/test.docx');
+
+        $text_preview_file = $this->client->generate($file, AbstractGenerator::PREVIEW_FORMAT_TEXT);
+
+        $this->assertInstanceOf(\SplFileObject::class, $text_preview_file);
+
+        $data = $text_preview_file->fread(1024);
+
+        $this->assertGreaterThan(0, strlen($data));
+        $this->assertEquals(trim($data), 'Test DOCX');
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testUnsupportedFormat()
+    {
+        $file = new \SplFileObject(__DIR__.'/files/test.rar');
+
+        $this->client->generate($file, AbstractGenerator::PREVIEW_FORMAT_TEXT);
+        $this->assertEquals($this->serverProcess->getStatus(), Process::STATUS_STARTED);
     }
 }
