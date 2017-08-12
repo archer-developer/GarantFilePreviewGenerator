@@ -162,7 +162,7 @@ abstract class AbstractGenerator
     {
         // Create page range screen shot
         $convert_cmd = "convert -density {$density} -quality {$this->quality} -background white -alpha remove -append";
-        $convert_cmd = $convert_cmd . " {$file_path} " . $preview_path;
+        $convert_cmd = $convert_cmd." \"{$file_path}\" \"{$preview_path}\"";
 
         $this->logger->debug($convert_cmd);
 

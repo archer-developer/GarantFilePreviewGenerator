@@ -32,7 +32,7 @@ class GeneratorFactory
      *
      * @return AbstractGenerator|null
      */
-    public function get(\SplFileObject $file, $out_format): ?AbstractGenerator
+    public function get(\SplFileObject $file, $out_format)
     {
         foreach($this->generators as $generator) {
             if($generator->support($file, $out_format)) {
