@@ -40,11 +40,15 @@ class MSWordGenerator extends AbstractMSOfficeGenerator
         $this->logger->debug('Success');
         $this->logger->debug('Open document');
         try {
+
+            $word->DisplayAlerts = new \VARIANT(false, VT_BOOL);
+
             if ($format_code != self::EXPORT_FORMATS[self::PREVIEW_FORMAT_PDF]) {
 
                 $word->Documents->Open($orig_path, false, true);
                 $this->logger->debug('Save document as ' . $out_path);
-                $word->ActiveDocument->SaveAs2($out_path, $format_code);
+
+                $word->ActiveDocument->SaveAs2(new \VARIANT($out_path, VT_BSTR), new \VARIANT($format_code, VT_I4));
             } else {
 
                 $word->Documents->Open($orig_path, false, true);

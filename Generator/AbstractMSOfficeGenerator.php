@@ -58,11 +58,11 @@ abstract class AbstractMSOfficeGenerator extends AbstractGenerator
 
         if(!$this->isImage($out_format)) {
             // Convert to output format directly
-            $format_code = self::EXPORT_FORMATS[$out_format];
+            $format_code = static::EXPORT_FORMATS[$out_format];
             $this->convert($file->getRealPath(), $preview_path, $format_code);
         } else {
             // Convert to PDF -> to image
-            $format_code = self::EXPORT_FORMATS[self::PREVIEW_FORMAT_PDF];
+            $format_code = static::EXPORT_FORMATS[self::PREVIEW_FORMAT_PDF];
             $out_path = $file->getRealPath() . '.' . self::PREVIEW_FORMAT_PDF;
 
             $this->convert($file->getRealPath(), $out_path, $format_code);
