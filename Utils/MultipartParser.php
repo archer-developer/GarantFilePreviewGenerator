@@ -63,6 +63,9 @@ class MultipartParser
             {
                 // match "name", then everything after "stream" (optional) except for prepending newlines
                 preg_match("/name=\"([^\"]*)\".*stream[\n|\r]+([^\n\r].*)?$/s", $block, $matches);
+                if(empty($matches[1]) || empty($matches[2])) {
+                    continue;
+                }
                 $a_data['files'][$matches[1]] = $matches[2];
             }
             // parse all other fields
