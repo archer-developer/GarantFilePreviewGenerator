@@ -85,6 +85,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                         $this->io->logMemoryUsage();
 
                         if(empty($body['files']) && empty($body['file'])) {
+                            $this->logger->warning('Empty file!');
                             return $reject($this->error('Empty file!'));
                         }
 
@@ -162,7 +163,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                         return $reject($this->error($e->getMessage()));
                     }
                     finally{
-                        if($temp_file->getRealPath()){
+                        if(isset($temp_file) && $temp_file->getRealPath()){
                             $path = $temp_file->getRealPath();
                             // Close file pointer
                             $temp_file = null;
