@@ -35,6 +35,7 @@ class RemoteClientTest extends KernelTestCase
         $this->serverProcess->start();
 
         $this->assertEquals($this->serverProcess->getStatus(), Process::STATUS_STARTED);
+        sleep(5);
     }
 
     public function testIndex()
