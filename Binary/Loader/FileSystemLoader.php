@@ -18,10 +18,9 @@ class FileSystemLoader extends BaseLoader
         }
 
         // Windows absolute path
-        if(preg_match('/^[a-zA-Z]\:\\\\/', $path)){
+        if (preg_match('/^[a-zA-Z]\:\\\\/', $path)) {
             $absolutePath = $path;
-        }
-        else{
+        } else {
             $absolutePath = $this->rootPath.'/'.ltrim($path, '/');
         }
 

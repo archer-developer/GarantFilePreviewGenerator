@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: Alexander Samusevich
  * Date: 4.6.16
- * Time: 14.58
+ * Time: 14.58.
  */
 
 namespace Garant\FilePreviewGeneratorBundle\Client;
@@ -16,8 +16,7 @@ use Guzzle\Http\Message\Response;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 /**
- * Class RemoteClient
- * @package Garant\FilePreviewGeneratorBundle\Client
+ * Class RemoteClient.
  */
 class RemoteClient extends AbstractGenerator
 {
@@ -29,17 +28,24 @@ class RemoteClient extends AbstractGenerator
     const SELECT_ALGORITHM_ROUND_ROBIN = 'round_robin';
 
     /**
-     * @param \SplFileObject $file - input file
-     * @return \SplFileObject - file preview
+     * {@inheritdoc}
      */
-    public function generate(\SplFileObject $file)
+    public function support(\SplFileObject $file, $out_format): bool
+    {
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function generate(\SplFileObject $file, $out_format): \SplFileObject
     {
         $availableServers = $this->container->getParameter('garant_file_preview_generator.servers');
         $selectAlgorithm = $this->container->getParameter('garant_file_preview_generator.server_select_algorithm');
 
         // Select server
         $server = null;
-        switch($selectAlgorithm){
+        switch ($selectAlgorithm) {
             case self::SELECT_ALGORITHM_RAND:
 
                 $serverNames = array_keys($availableServers);
@@ -50,7 +56,7 @@ class RemoteClient extends AbstractGenerator
 
                 $shm_service = $this->container->getParameter('garant_file_preview_generator.shared_memory');
                 $shm = $this->container->get($shm_service);
-                if(!$shm instanceof SharedMemoryInterface){
+                if (!$shm instanceof SharedMemoryInterface) {
                     throw new \RuntimeException('Configuration error: Service '.get_class($shm).' must implement SharedMemory interface!');
                 }
 
@@ -59,10 +65,10 @@ class RemoteClient extends AbstractGenerator
                 break;
 
             default:
-                throw new \RuntimeException('Invalid select algorithm: ' . $selectAlgorithm . '. See available server selection algorithm');
+                throw new \RuntimeException('Invalid select algorithm: '.$selectAlgorithm.'. See available server selection algorithm');
         }
 
-        if(!$server){
+        if (!$server) {
             throw new \RuntimeException('No servers available!');
         }
 
@@ -70,40 +76,40 @@ class RemoteClient extends AbstractGenerator
         $timeout = $this->container->getParameter('garant_file_preview_generator.remote_client.connect_timeout');
 
         // Configure Guzzle HTTP client
-        $client = new Client($server['protocol'] . '://' . $server['host'] . ':' . $server['port']);
+        $client = new Client($server['protocol'].'://'.$server['host'].':'.$server['port']);
         $client->setDefaultOption('connect_timeout', $timeout);
 
         $request = $client->post()
             ->addHeader('Content-Type', 'multipart/form-data')
-            ->setPostField('out_format', $this->out_format)
-            ->setPostField('quality', $this->quality);
-			
-		if(!empty($this->filter)){
-			$request->setPostField('filter', $this->filter);
-		}
-			
-		$request
+            ->setPostField('out_format', $out_format)
+            ->setPostField('quality', $this->quality)
             ->setPostField('file_name', $file->getFilename())
             ->addPostFile('file', $file->getRealPath())
         ;
 
-        /**
+        if (!empty($this->filter)) {
+            $request->setPostField('filter', $this->filter);
+        }
+        if (!empty($this->page_range)) {
+            $request->setPostField('page_range', $this->page_range);
+        }
+
+        /*
          * @var Response $response
          */
-        try{
+        try {
             $response = $request->send();
-        }
-        catch(BadResponseException $e){
+        } catch (BadResponseException $e) {
             throw new \RuntimeException($e->getMessage());
         }
 
-        if($response->getStatusCode() != 200){
+        if ($response->getStatusCode() != 200) {
             throw new \RuntimeException($response->getBody(true));
         }
 
         $preview = new \SplTempFileObject();
         $response->getBody()->rewind();
-        while(!$response->getBody()->feof()){
+        while (!$response->getBody()->feof()) {
             $b = $response->getBody()->read(self::BUFFER_SIZE);
             $preview->fwrite($b);
         }

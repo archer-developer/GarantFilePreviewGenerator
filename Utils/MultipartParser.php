@@ -3,11 +3,16 @@
  * Created by PhpStorm.
  * User: Alexander Samusevich
  * Date: 11.5.17
- * Time: 11.04
+ * Time: 11.04.
  */
 
 namespace Garant\FilePreviewGeneratorBundle\Utils;
 
+/**
+ * Class MultipartParser.
+ *
+ * @todo Multipart Parser will be develop in ReactPHP v0.8.0
+ */
 class MultipartParser
 {
     /**
@@ -22,9 +27,10 @@ class MultipartParser
      * Any files found in the request will be added by their field name to the
      * $data['files'] array.
      *
-     * @param   string $input
-     * @param   string $content_type
-     * @return  array  Associative array of request data
+     * @param string $input
+     * @param string $content_type
+     *
+     * @return array Associative array of request data
      */
     public static function parse_raw_http_request($input, $content_type)
     {
@@ -34,10 +40,10 @@ class MultipartParser
         $a_data = [];
 
         // content type is probably regular form-encoded
-        if (!count($matches))
-        {
+        if (!count($matches)) {
             // we expect regular puts to containt a query string containing data
             parse_str(urldecode($input), $a_data);
+
             return $a_data;
         }
 
@@ -48,23 +54,23 @@ class MultipartParser
         array_pop($a_blocks);
 
         // loop data blocks
-        foreach ($a_blocks as $id => $block)
-        {
-            if (empty($block))
+        foreach ($a_blocks as $id => $block) {
+            if (empty($block)) {
                 continue;
+            }
 
             // parse uploaded files
-            if (strpos($block, 'application/octet-stream') !== FALSE)
-            {
+            if (strpos($block, 'application/octet-stream') !== false) {
                 // match "name", then everything after "stream" (optional) except for prepending newlines
                 preg_match("/name=\"([^\"]*)\".*stream[\n|\r]+([^\n\r].*)?$/s", $block, $matches);
+                if (empty($matches[1]) || empty($matches[2])) {
+                    continue;
+                }
                 $a_data['files'][$matches[1]] = $matches[2];
             }
             // parse all other fields
-            else
-            {
-                if (strpos($block, 'filename') !== FALSE)
-                {
+            else {
+                if (strpos($block, 'filename') !== false) {
                     // match "name" and optional value in between newline sequences
                     preg_match('/name=\"([^\"]*)\"; filename=\"([^\"]*)\"[\n|\r]+([^\n\r].*)?[\r|\n]$/s', $block, $matches);
                     preg_match('/Content-Type: (.*)?/', $matches[3], $mime);
@@ -72,7 +78,7 @@ class MultipartParser
                     // strip any headers
                     $encoded_body = $matches[3];
                     $encoded_body_sep = "\r\n\r\n"; //CR+LF pair
-                    if(($binary_start = strpos($encoded_body, $encoded_body_sep)) !== false) {
+                    if (($binary_start = strpos($encoded_body, $encoded_body_sep)) !== false) {
                         $encoded_body = substr($encoded_body, $binary_start + strlen($encoded_body_sep));
                     }
                     $encoded_body = rtrim($encoded_body, "\n\r");
@@ -94,11 +100,9 @@ class MultipartParser
                     $a_data[$key]['name'][] = $matches[2];
                     $a_data[$key]['type'][] = $mime[1];
                     $a_data[$key]['tmp_name'][] = $path;
-                    $a_data[$key]['error'][] = ($err === FALSE) ? $err : 0;
+                    $a_data[$key]['error'][] = ($err === false) ? $err : 0;
                     $a_data[$key]['size'][] = filesize($path);
-                }
-                else
-                {
+                } else {
                     // match "name" and optional value in between newline sequences
                     preg_match('/name=\"([^\"]*)\"[\n|\r]+([^\n\r].*)?[\r|\n]$/s', $block, $matches);
                     if (preg_match('/^(.*)\[\]$/i', $matches[1], $tmp)) {

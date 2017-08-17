@@ -10,8 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Class GarantFilePreviewGeneratorSupervisorStartCommand
- * @package Garant\FilePreviewGeneratorBundle\Command
+ * Class GarantFilePreviewGeneratorSupervisorStartCommand.
  */
 class GarantFilePreviewGeneratorSupervisorStartCommand extends ContainerAwareCommand
 {
@@ -33,7 +32,7 @@ class GarantFilePreviewGeneratorSupervisorStartCommand extends ContainerAwareCom
 
         $supervisor = $this->getContainer()->getParameter('garant_file_preview_generator.supervisor_class');
         $supervisor = new $supervisor();
-        if(!$supervisor instanceof SupervisorInterface){
+        if (!$supervisor instanceof SupervisorInterface) {
             throw new \RuntimeException('Supervisor class must implements SupervisorInterface!');
         }
 

@@ -4,7 +4,7 @@
  * Created by PhpStorm.
  * User: Samusevich Alexander
  * Date: 26.03.2017
- * Time: 21:57
+ * Time: 21:57.
  */
 
 namespace Garant\FilePreviewGeneratorBundle\Supervisor;
@@ -12,8 +12,7 @@ namespace Garant\FilePreviewGeneratorBundle\Supervisor;
 use Symfony\Component\Process\Process;
 
 /**
- * Class ChildProcess
- * @package Garant\FilePreviewGeneratorBundle\Supervisor
+ * Class ChildProcess.
  */
 class ChildProcess
 {
