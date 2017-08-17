@@ -15,6 +15,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class GarantFilePreviewGeneratorServerStartCommand
@@ -90,7 +91,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                         }
 
                         // Generate temp name to store file body
-                        $tmp_name = sys_get_temp_dir() . '/preview_attachment_' . $this->server;
+                        $tmp_name = $this->getContainer()->getParameter('kernel.cache_dir') . '/preview_attachment_' . $this->server;
                         if(isset($body['file_name'])){
 
                             $this->logger->debug($body['file_name']);
