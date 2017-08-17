@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: Alexander Samusevich
  * Date: 4.6.16
- * Time: 14.58
+ * Time: 14.58.
  */
 
 namespace Garant\FilePreviewGeneratorBundle\Generator;
@@ -11,13 +11,13 @@ namespace Garant\FilePreviewGeneratorBundle\Generator;
 use Symfony\Component\Process\Process;
 
 /**
- * Class LibreOfficeGenerator
- * @package Garant\FilePreviewGeneratorBundle\Generator
+ * Class LibreOfficeGenerator.
  */
 class LibreOfficeGenerator extends AbstractGenerator
 {
     /**
-     * WdSaveFormat Enumeration
+     * WdSaveFormat Enumeration.
+     *
      * @see https://msdn.microsoft.com/en-us/library/bb238158(v=office.12).aspx
      */
     const EXPORT_FORMATS = [
@@ -44,7 +44,8 @@ class LibreOfficeGenerator extends AbstractGenerator
 
     /**
      * @param \SplFileObject $file
-     * @param string $out_format
+     * @param string         $out_format
+     *
      * @return bool
      */
     public function support(\SplFileObject $file, $out_format): bool
@@ -55,30 +56,30 @@ class LibreOfficeGenerator extends AbstractGenerator
 
         $mime_type = mime_content_type($file->getRealPath());
 
-        return (in_array($mime_type, self::ALLOWED_INPUT_FORMATS) && (in_array($out_format, self::EXPORT_FORMATS) || $this->isImage($out_format)));
+        return in_array($mime_type, self::ALLOWED_INPUT_FORMATS) && (in_array($out_format, self::EXPORT_FORMATS) || $this->isImage($out_format));
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function generate(\SplFileObject $file, $out_format): \SplFileObject
     {
         $file->rewind();
 
         $orig_path = $file->getRealPath();
-        $preview_path = $orig_path . '.' . $out_format;
-        if(file_exists($preview_path)){
+        $preview_path = $orig_path.'.'.$out_format;
+        if (file_exists($preview_path)) {
             unlink($preview_path);
         }
 
-        $out_path = $orig_path . '.' . $out_format;
+        $out_path = $orig_path.'.'.$out_format;
 
         $this->convert($orig_path, $out_path, $out_format);
 
-        if($this->isImage($out_format)) {
+        if ($this->isImage($out_format)) {
             $preview_path = $this->generateImagePreview($out_path.'['.$this->page_range.']', $preview_path, self::PDF_RESOLUTION);
             // Remove temp files
-            if(file_exists($out_path)){
+            if (file_exists($out_path)) {
                 unlink($out_path);
             }
         } else {
@@ -92,6 +93,7 @@ class LibreOfficeGenerator extends AbstractGenerator
      * @param string $orig_path
      * @param string $out_path
      * @param string $out_format
+     *
      * @return bool
      */
     protected function convert($orig_path, $out_path, $out_format)
@@ -99,7 +101,7 @@ class LibreOfficeGenerator extends AbstractGenerator
         // Generate PDF from source file
         $process = new Process("unoconv -f {$out_format} -o {$out_path} {$orig_path}");
         $process->run();
-        if(!file_exists($out_path) || $process->getExitCode() > 0){
+        if (!file_exists($out_path) || $process->getExitCode() > 0) {
             return false;
         }
 

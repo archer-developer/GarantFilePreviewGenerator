@@ -3,8 +3,7 @@
 namespace Garant\FilePreviewGeneratorBundle\SharedMemory;
 
 /**
- * Class SncRedisAdapter
- * @package Garant\FilePreviewGeneratorBundle\SharedMemory
+ * Class SncRedisAdapter.
  */
 class SncRedisAdapter implements SharedMemoryInterface
 {
@@ -20,21 +19,21 @@ class SncRedisAdapter implements SharedMemoryInterface
 
     /**
      * @param string $name
+     *
      * @return mixed
      */
     public function get($name)
     {
-
     }
 
     /**
      * @param string $name
-     * @param mixed $value
+     * @param mixed  $value
+     *
      * @return mixed
      */
     public function set($name, $value)
     {
-
     }
 
     public function lock($name)

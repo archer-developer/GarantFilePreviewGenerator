@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: Alexander Samusevich
  * Date: 4.6.16
- * Time: 14.58
+ * Time: 14.58.
  */
 
 namespace Garant\FilePreviewGeneratorBundle\Generator;
@@ -11,19 +11,17 @@ namespace Garant\FilePreviewGeneratorBundle\Generator;
 use Liip\ImagineBundle\Binary\Loader\LoaderInterface;
 use Liip\ImagineBundle\Imagine\Filter\FilterManager;
 use Liip\ImagineBundle\Model\Binary;
-
 use Symfony\Bridge\Monolog\Logger;
 use Symfony\Component\Process\Process;
 
 /**
- * Class AbstractGenerator
- * @package Garant\FilePreviewGeneratorBundle\Generator
+ * Class AbstractGenerator.
  */
 abstract class AbstractGenerator
 {
     const PREVIEW_FORMAT_JPEG = 'jpeg';
-    const PREVIEW_FORMAT_PNG  = 'png';
-    const PREVIEW_FORMAT_PDF  = 'pdf';
+    const PREVIEW_FORMAT_PNG = 'png';
+    const PREVIEW_FORMAT_PDF = 'pdf';
     const PREVIEW_FORMAT_HTML = 'html';
     const PREVIEW_FORMAT_TEXT = 'txt';
 
@@ -60,7 +58,7 @@ abstract class AbstractGenerator
     protected $filter;
 
     /**
-     * @var FilterManager $filter_manager
+     * @var FilterManager
      */
     protected $filter_manager;
 
@@ -76,7 +74,8 @@ abstract class AbstractGenerator
 
     /**
      * AbstractGenerator constructor.
-     * @param FilterManager $filter_manager
+     *
+     * @param FilterManager   $filter_manager
      * @param LoaderInterface $binary_loader
      */
     public function __construct(FilterManager $filter_manager, LoaderInterface $binary_loader)
@@ -86,10 +85,10 @@ abstract class AbstractGenerator
     }
 
     /**
-     * Generate file preview in required format
+     * Generate file preview in required format.
      *
      * @param \SplFileObject $file
-     * @param string $out_format
+     * @param string         $out_format
      *
      * @return \SplFileObject
      */
@@ -97,7 +96,7 @@ abstract class AbstractGenerator
 
     /**
      * @param \SplFileObject $file
-     * @param string $out_format
+     * @param string         $out_format
      *
      * @return bool
      */
@@ -120,7 +119,8 @@ abstract class AbstractGenerator
     }
 
     /**
-     * Set LiipImagine filter to post process
+     * Set LiipImagine filter to post process.
+     *
      * @param $filter
      */
     public function setFilter($filter)
@@ -145,19 +145,21 @@ abstract class AbstractGenerator
     }
 
     /**
-     * Convert pages from 0 to $page_count
+     * Convert pages from 0 to $page_count.
+     *
      * @param string $page_count
      */
     public function setPageCount($page_count)
     {
         $max_page = intval($page_count) - 1;
-        $this->page_range = ($max_page > 0) ? '0-' . $max_page : '0';
+        $this->page_range = ($max_page > 0) ? '0-'.$max_page : '0';
     }
 
     /**
      * @param string $file_path
      * @param string $preview_path
-     * @param integer $density
+     * @param int    $density
+     *
      * @return bool
      */
     protected function generateImagePreview($file_path, $preview_path, $density = 100)
@@ -170,8 +172,8 @@ abstract class AbstractGenerator
 
         $process = new Process($convert_cmd);
         $process->run();
-        if(!file_exists($preview_path) || $process->getExitCode() > 0){
-            $this->logger->debug('Error. Exit code: ' . $process->getExitCode());
+        if (!file_exists($preview_path) || $process->getExitCode() > 0) {
+            $this->logger->debug('Error. Exit code: '.$process->getExitCode());
             throw new \RuntimeException('Cannot create image preview');
         }
 
@@ -179,24 +181,26 @@ abstract class AbstractGenerator
     }
 
     /**
-     * Process preview image
+     * Process preview image.
      *
      * @param string $path - absolute path to preview image
+     *
      * @return string
      */
     protected function postProcess($path)
     {
-        if(!$this->filter){
+        if (!$this->filter) {
             $this->logger->debug('Post processing: skipped');
+
             return $path;
         }
 
         /**
-         * @var Binary $binary
+         * @var Binary
          */
         $binary = $this->binary_loader->find($path);
 
-        $this->logger->debug('Post processing: apply filter ' . $this->filter);
+        $this->logger->debug('Post processing: apply filter '.$this->filter);
 
         $binary = $this->filter_manager->applyFilter($binary, $this->filter);
         file_put_contents($path, $binary->getContent());
@@ -207,12 +211,13 @@ abstract class AbstractGenerator
     /**
      * @param \SplFileObject $file
      * @param $out_format
+     *
      * @return string
      */
     protected function generatePreviewPath(\SplFileObject $file, $out_format)
     {
-        $preview_path = $file->getRealPath() . '.' . $out_format;
-        if(file_exists($preview_path)){
+        $preview_path = $file->getRealPath().'.'.$out_format;
+        if (file_exists($preview_path)) {
             unlink($preview_path);
         }
 
@@ -221,6 +226,7 @@ abstract class AbstractGenerator
 
     /**
      * @param $ext
+     *
      * @return bool
      */
     protected function isImage($ext)
@@ -230,6 +236,7 @@ abstract class AbstractGenerator
 
     /**
      * @param $ext
+     *
      * @return bool
      */
     protected function isPDF($ext)

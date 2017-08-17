@@ -2,9 +2,9 @@
 
 /**
  * Created by PhpStorm.
- * User: archer
+ * User: Alexander Samusevich
  * Date: 07.08.2017
- * Time: 20:16
+ * Time: 20:16.
  */
 
 namespace Garant\FilePreviewGeneratorBundle\Generator\Factory;
@@ -28,14 +28,14 @@ class GeneratorFactory
 
     /**
      * @param \SplFileObject $file
-     * @param string $out_format
+     * @param string         $out_format
      *
      * @return AbstractGenerator|null
      */
     public function get(\SplFileObject $file, $out_format)
     {
-        foreach($this->generators as $generator) {
-            if($generator->support($file, $out_format)) {
+        foreach ($this->generators as $generator) {
+            if ($generator->support($file, $out_format)) {
                 return clone $generator;
             }
         }

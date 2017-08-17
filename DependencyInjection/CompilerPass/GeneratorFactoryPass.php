@@ -2,9 +2,9 @@
 
 /**
  * Created by PhpStorm.
- * User: archer
+ * User: Alexander Samusevich
  * Date: 07.08.2017
- * Time: 20:26
+ * Time: 20:26.
  */
 
 namespace Garant\FilePreviewGeneratorBundle\DependencyInjection\CompilerPass;
@@ -22,7 +22,7 @@ class GeneratorFactoryPass implements CompilerPassInterface
         $generators = $this->findAndSortTaggedServices('garant_file_preview_generator.generator', $container);
         $factoryService = $container->getDefinition('garant_file_preview_generator.generator_factory');
 
-        foreach($generators as $serviceReference) {
+        foreach ($generators as $serviceReference) {
             $factoryService->addMethodCall('addGenerator', [$serviceReference]);
         }
     }

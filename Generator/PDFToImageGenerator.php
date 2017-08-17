@@ -3,27 +3,26 @@
  * Created by PhpStorm.
  * User: Alexander Samusevich
  * Date: 4.6.16
- * Time: 14.58
+ * Time: 14.58.
  */
 
 namespace Garant\FilePreviewGeneratorBundle\Generator;
 
 /**
- * Class PDFToImageGenerator
- * @package Garant\FilePreviewGeneratorBundle\Generator
+ * Class PDFToImageGenerator.
  */
 class PDFToImageGenerator extends AbstractGenerator
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function support(\SplFileObject $file, $out_format): bool
     {
-        return ($this->isPDF($file->getExtension()) && $this->isImage($out_format));
+        return $this->isPDF($file->getExtension()) && $this->isImage($out_format);
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function generate(\SplFileObject $file, $out_format): \SplFileObject
     {

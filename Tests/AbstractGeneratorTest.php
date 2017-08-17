@@ -2,9 +2,9 @@
 
 /**
  * Created by PhpStorm.
- * User: archer
+ * User: Alexander Samusevich
  * Date: 10.08.2017
- * Time: 21:53
+ * Time: 21:53.
  */
 
 namespace Garant\FilePreviewGeneratorBundle\Tests;
@@ -29,6 +29,7 @@ abstract class AbstractGeneratorTest extends WebTestCase
     /**
      * @param $fileName
      * @param $format
+     *
      * @return \SplFileObject
      */
     protected function generate($fileName, $format): \SplFileObject

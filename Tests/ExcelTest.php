@@ -2,9 +2,9 @@
 
 /**
  * Created by PhpStorm.
- * User: archer
+ * User: Alexander Samusevich
  * Date: 10.08.2017
- * Time: 21:53
+ * Time: 21:53.
  */
 
 namespace Garant\FilePreviewGeneratorBundle\Tests;

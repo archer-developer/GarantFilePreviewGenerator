@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\Loader;
 /**
  * This is the class that loads and manages your bundle configuration.
  *
- * @link http://symfony.com/doc/current/cookbook/bundles/extension.html
+ * @see http://symfony.com/doc/current/cookbook/bundles/extension.html
  */
 class GarantFilePreviewGeneratorExtension extends Extension
 {
@@ -25,7 +25,7 @@ class GarantFilePreviewGeneratorExtension extends Extension
         $config = $this->processConfiguration($configuration, $configs);
 
         $env = $container->getParameter('kernel.environment');
-        if($env == 'test') {
+        if ($env == 'test') {
             $config['servers'] = [
                 'test' => [
                     'host' => '127.0.0.1',
@@ -38,11 +38,10 @@ class GarantFilePreviewGeneratorExtension extends Extension
         $container->setParameter('garant_file_preview_generator.servers', $config['servers']);
         $container->setParameter('garant_file_preview_generator.server_select_algorithm', $config['server_select_algorithm']);
 
-        if($config['server_select_algorithm'] == RemoteClient::SELECT_ALGORITHM_ROUND_ROBIN){
-            if(!empty($config['shared_memory'])){
+        if ($config['server_select_algorithm'] == RemoteClient::SELECT_ALGORITHM_ROUND_ROBIN) {
+            if (!empty($config['shared_memory'])) {
                 $container->setParameter('garant_file_preview_generator.shared_memory', $config['shared_memory']);
-            }
-            else{
+            } else {
                 throw new InvalidConfigurationException('You must set shared_memory parameter if you use round_robin algorithm');
             }
         }

@@ -3,23 +3,23 @@
  * Created by PhpStorm.
  * User: Alexander Samusevich
  * Date: 4.6.16
- * Time: 14.58
+ * Time: 14.58.
  */
 
 namespace Garant\FilePreviewGeneratorBundle\Generator;
 
 /**
- * Class AbstractMSOfficeGenerator
- * @package Garant\FilePreviewGeneratorBundle\Generator
+ * Class AbstractMSOfficeGenerator.
  */
 abstract class AbstractMSOfficeGenerator extends AbstractGenerator
 {
     /**
-     * WdSaveFormat Enumeration
+     * WdSaveFormat Enumeration.
+     *
      * @see https://msdn.microsoft.com/en-us/library/bb238158(v=office.12).aspx
      */
     const EXPORT_FORMATS = [
-        self::PREVIEW_FORMAT_PDF  => 17,
+        self::PREVIEW_FORMAT_PDF => 17,
         self::PREVIEW_FORMAT_HTML => 8,
         self::PREVIEW_FORMAT_TEXT => 2,
     ];
@@ -28,7 +28,7 @@ abstract class AbstractMSOfficeGenerator extends AbstractGenerator
     const ALLOWED_INPUT_FORMATS = [];
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function support(\SplFileObject $file, $out_format): bool
     {
@@ -38,11 +38,11 @@ abstract class AbstractMSOfficeGenerator extends AbstractGenerator
 
         $mime_type = mime_content_type($file->getRealPath());
 
-        return (in_array($mime_type, static::ALLOWED_INPUT_FORMATS) && (key_exists($out_format, static::EXPORT_FORMATS) || $this->isImage($out_format)));
+        return in_array($mime_type, static::ALLOWED_INPUT_FORMATS) && (key_exists($out_format, static::EXPORT_FORMATS) || $this->isImage($out_format));
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function generate(\SplFileObject $file, $out_format): \SplFileObject
     {
@@ -50,20 +50,20 @@ abstract class AbstractMSOfficeGenerator extends AbstractGenerator
 
         $preview_path = $this->generatePreviewPath($file, $out_format);
 
-        if(!$this->isImage($out_format)) {
+        if (!$this->isImage($out_format)) {
             // Convert to output format directly
             $format_code = static::EXPORT_FORMATS[$out_format];
             $this->convert($file->getRealPath(), $preview_path, $format_code);
         } else {
             // Convert to PDF -> to image
             $format_code = static::EXPORT_FORMATS[self::PREVIEW_FORMAT_PDF];
-            $out_path = $file->getRealPath() . '.' . self::PREVIEW_FORMAT_PDF;
+            $out_path = $file->getRealPath().'.'.self::PREVIEW_FORMAT_PDF;
 
             $this->convert($file->getRealPath(), $out_path, $format_code);
 
             $this->generateImagePreview($out_path.'['.$this->page_range.']', $preview_path, self::PDF_RESOLUTION);
             // Remove temp files
-            if(file_exists($out_path)){
+            if (file_exists($out_path)) {
                 unlink($out_path);
             }
         }
@@ -75,7 +75,6 @@ abstract class AbstractMSOfficeGenerator extends AbstractGenerator
      * @param string $orig_path
      * @param string $out_path
      * @param string $format_code
-     * @return void
      */
     abstract protected function convert($orig_path, $out_path, $format_code);
 }
