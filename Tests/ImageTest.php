@@ -37,4 +37,19 @@ class ImageTest extends AbstractGeneratorTest
     {
         $this->generate('test.png', AbstractGenerator::PREVIEW_FORMAT_JPEG);
     }
+
+    public function testJPEGToPDF()
+    {
+        $this->generate('test.jpeg', AbstractGenerator::PREVIEW_FORMAT_PDF);
+    }
+
+    public function testBMPToPDF()
+    {
+        $this->generate('test.bmp', AbstractGenerator::PREVIEW_FORMAT_PDF);
+    }
+
+    public function testPNGToPDF()
+    {
+        $this->generate('test.png', AbstractGenerator::PREVIEW_FORMAT_PDF);
+    }
 }
