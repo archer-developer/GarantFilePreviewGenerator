@@ -5,7 +5,7 @@ It contains client and server that let use the bundle both locally and remotely.
 
 ## System requirements (for Microsoft Windows)
 
-A) Microsoft Word must be installed. Also you need to configure COM-objects
+A) Microsoft Office must be installed. Also you need to configure COM-objects.
 From the Start menu, click Run and type Dcomcnfg.exe.
 In Component Services, click Console root, expand Component Services, expand Computers, then My Computer, then DCOM Configuration
 Find entity named Microsoft Word 97-2003 Document. Right click on it, then Properties.
@@ -112,6 +112,10 @@ If remote server is configured you can start it. Call this command on remote ser
     bin/console garant:file-preview-generator:server-start <server_name>
     
 Also you can start server with -vvv flag to check memory usage and get other information about conversion process.
+  
+You can start some generators simultaneously and automatically restart processes using embedded supervisor:
+ 
+    bin/console garant:file-preview-generator:supervisor-start
   
 ### Services
 
