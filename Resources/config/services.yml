@@ -8,6 +8,7 @@ parameters:
     garant_file_preview_generator.msexcel_generator.class: Garant\FilePreviewGeneratorBundle\Generator\MSExcelGenerator
     garant_file_preview_generator.powerpoint_generator.class: Garant\FilePreviewGeneratorBundle\Generator\MSPowerPointGenerator
     garant_file_preview_generator.image_to_image_generator.class: Garant\FilePreviewGeneratorBundle\Generator\ImageToImageGenerator
+    garant_file_preview_generator.image_to_pdf_generator.class: Garant\FilePreviewGeneratorBundle\Generator\ImageToPDFGenerator
     garant_file_preview_generator.pdf_to_image_generator.class: Garant\FilePreviewGeneratorBundle\Generator\PDFToImageGenerator
     garant_file_preview_generator.supervisor_class: Garant\FilePreviewGeneratorBundle\Supervisor\Supervisor
 
@@ -60,6 +61,14 @@ services:
 
     garant_file_preview_generator.image_to_image_generator:
         class: '%garant_file_preview_generator.image_to_image_generator.class%'
+        arguments: ["@liip_imagine.filter.manager", "@garant_file_preview_generator.binary.loader.filesystem"]
+        calls:
+            - [setLogger, ["@logger"]]
+        tags:
+            - {name: "garant_file_preview_generator.generator"}
+
+    garant_file_preview_generator.image_to_pdf_generator:
+        class: '%garant_file_preview_generator.image_to_pdf_generator.class%'
         arguments: ["@liip_imagine.filter.manager", "@garant_file_preview_generator.binary.loader.filesystem"]
         calls:
             - [setLogger, ["@logger"]]
