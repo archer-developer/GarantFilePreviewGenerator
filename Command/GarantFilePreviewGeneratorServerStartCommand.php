@@ -78,13 +78,12 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                     try {
                         $this->logger->debug('Read HTTP body...');
                         $this->io->logMemoryUsage();
-                        dump($body);
                         $body = MultipartParser::parse_raw_http_request($body, $request->getHeader('content-type')[0]);
                         $this->io->logMemoryUsage();
 
                         if (empty($body['files']) && empty($body['file'])) {
                             $this->logger->warning('Empty file!');
-
+                            file_put_contents('crashes/body_'.time(), $body);
                             return $reject($this->error('Empty file!'));
                         }
 
