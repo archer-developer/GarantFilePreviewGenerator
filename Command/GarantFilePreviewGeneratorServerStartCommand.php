@@ -68,22 +68,22 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                 $this->io->logMemoryUsage();
 
                 // Write data to temp file
-                $body = '';
-                $request->getBody()->on('data', function ($data) use (&$body) {
-                    $body .= $data;
+                $raw_body = '';
+                $request->getBody()->on('data', function ($data) use (&$raw_body) {
+                    $raw_body .= $data;
                 });
 
                 // Convert temp file and send response to client
-                $request->getBody()->on('end', function () use ($resolve, $reject, $request, &$body) {
+                $request->getBody()->on('end', function () use ($resolve, $reject, $request, &$raw_body) {
                     try {
                         $this->logger->debug('Read HTTP body...');
                         $this->io->logMemoryUsage();
-                        $body = MultipartParser::parse_raw_http_request($body, $request->getHeader('content-type')[0]);
+                        $body = MultipartParser::parse_raw_http_request($raw_body, $request->getHeader('content-type')[0]);
                         $this->io->logMemoryUsage();
 
                         if (empty($body['files']) && empty($body['file'])) {
                             $this->logger->warning('Empty file!');
-                            file_put_contents('crashes/body_'.time(), $body);
+                            file_put_contents('crashes/body_'.time(), $raw_body);
                             return $reject($this->error('Empty file!'));
                         }
 

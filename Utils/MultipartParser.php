@@ -91,7 +91,10 @@ class MultipartParser
 
                     $block_start = substr($block, 0, 1024);
                     // match "name" and optional value in between newline sequences
-                    preg_match('/name=\"([^\"]*)\"; filename=\"([^\"]*)\"[\n|\r]+([^\n\r].*)?[\r|\n]$/s', $block_start, $matches);
+                    preg_match('/name=\"([^\"]*)\"; filename=\"([^\"]*)\"[\n|\r]+([^\n\r].*)?$/s', $block_start, $matches);
+                    if(empty($matches[1]) || empty($matches[3])) {
+                        continue;
+                    }
                     preg_match('/Content-Type: (.*)?/', $matches[3], $mime);
 
                     // strip any headers
