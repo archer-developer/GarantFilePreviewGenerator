@@ -36,6 +36,7 @@ class MultipartParser
     {
         // grab multipart boundary from content type header
         preg_match('/boundary=(.*)$/', $content_type, $matches);
+        $encoded_body_sep = "\r\n\r\n"; //CR+LF pair
 
         $a_data = [];
 
@@ -64,33 +65,50 @@ class MultipartParser
                 // match "name", then everything after "stream" (optional) except for prepending newlines
                 $block_start = substr($block, 0, 1024);
                 preg_match("/name=\"([^\"]*)\".*stream[\n|\r]+([^\n\r].*)?$/s", $block_start, $matches);
-                $binary_start = strpos($block, $matches[2]);
-                $matches[2] = substr($block, $binary_start);
-                if (empty($matches[1]) || empty($matches[2])) {
+
+                if(empty($matches[2])) {
                     continue;
                 }
-                $a_data['files'][$matches[1]] = $matches[2];
+
+                // strip any headers
+                $binary_start = strpos($block, $matches[2]);
+                if (($n = strpos($matches[2], $encoded_body_sep)) !== false) {
+                    $binary_start += $n;
+                    $block = substr($block, $binary_start + strlen($encoded_body_sep));
+                } else {
+                    $block = substr($block, $binary_start);
+                }
+                $block = rtrim($block, "\n\r");
+
+                if (empty($matches[1]) || empty($block)) {
+                    continue;
+                }
+                $a_data['files'][$matches[1]] = $block;
             }
             // parse all other fields
             else {
                 if (strpos($block, 'filename') !== false) {
+
+                    $block_start = substr($block, 0, 1024);
                     // match "name" and optional value in between newline sequences
-                    preg_match('/name=\"([^\"]*)\"; filename=\"([^\"]*)\"[\n|\r]+([^\n\r].*)?[\r|\n]$/s', $block, $matches);
+                    preg_match('/name=\"([^\"]*)\"; filename=\"([^\"]*)\"[\n|\r]+([^\n\r].*)?[\r|\n]$/s', $block_start, $matches);
                     preg_match('/Content-Type: (.*)?/', $matches[3], $mime);
 
                     // strip any headers
-                    $encoded_body = $matches[3];
-                    $encoded_body_sep = "\r\n\r\n"; //CR+LF pair
-                    if (($binary_start = strpos($encoded_body, $encoded_body_sep)) !== false) {
-                        $encoded_body = substr($encoded_body, $binary_start + strlen($encoded_body_sep));
+                    $binary_start = strpos($block, $matches[3]);
+                    if (($n = strpos($matches[3], $encoded_body_sep)) !== false) {
+                        $binary_start += $n;
+                        $block = substr($block, $binary_start + strlen($encoded_body_sep));
+                    } else {
+                        continue;
                     }
-                    $encoded_body = rtrim($encoded_body, "\n\r");
+                    $block = rtrim($block, "\n\r");
 
-                    // get current system path and create tempory file name & path
+                    // get current system path and create temporary file name & path
                     $path = sys_get_temp_dir().'/php'.substr(sha1(rand()), 0, 6);
 
                     // write temporary file to emulate $_FILES super global
-                    $err = file_put_contents($path, $encoded_body);
+                    $err = file_put_contents($path, $block);
 
                     // Did the user use the infamous &lt;input name="array[]" for multiple file uploads?
                     if (preg_match('/^(.*)\[\]$/i', $matches[1], $tmp)) {

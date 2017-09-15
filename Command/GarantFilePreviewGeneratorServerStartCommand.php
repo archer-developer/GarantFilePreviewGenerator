@@ -78,6 +78,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                     try {
                         $this->logger->debug('Read HTTP body...');
                         $this->io->logMemoryUsage();
+                        dump($body);
                         $body = MultipartParser::parse_raw_http_request($body, $request->getHeader('content-type')[0]);
                         $this->io->logMemoryUsage();
 
