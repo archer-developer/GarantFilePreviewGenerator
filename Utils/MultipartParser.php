@@ -62,7 +62,10 @@ class MultipartParser
             // parse uploaded files
             if (strpos($block, 'application/octet-stream') !== false) {
                 // match "name", then everything after "stream" (optional) except for prepending newlines
-                preg_match("/name=\"([^\"]*)\".*stream[\n|\r]+([^\n\r].*)?$/s", $block, $matches);
+                $block_start = substr($block, 0, 1024);
+                preg_match("/name=\"([^\"]*)\".*stream[\n|\r]+([^\n\r].*)?$/s", $block_start, $matches);
+                $binary_start = strpos($block, $matches[2]);
+                $matches[2] = substr($block, $binary_start);
                 if (empty($matches[1]) || empty($matches[2])) {
                     continue;
                 }
