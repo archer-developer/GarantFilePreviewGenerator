@@ -19,9 +19,10 @@ abstract class AbstractMSOfficeGenerator extends AbstractGenerator
      * @see https://msdn.microsoft.com/en-us/library/bb238158(v=office.12).aspx
      */
     const EXPORT_FORMATS = [
-        self::PREVIEW_FORMAT_PDF => 17,
+        self::PREVIEW_FORMAT_PDF  => 17,
         self::PREVIEW_FORMAT_HTML => 8,
         self::PREVIEW_FORMAT_TEXT => 2,
+        self::PREVIEW_FORMAT_MS_WORD => 16, // Default MS Word format (docx for Office version higher than 2007)
     ];
 
     // Mime-types allowed to convert

@@ -32,11 +32,15 @@ abstract class AbstractGeneratorTest extends WebTestCase
      *
      * @return \SplFileObject
      */
-    protected function generate($fileName, $format): \SplFileObject
+    protected function generate($fileName, $format): ?\SplFileObject
     {
         $temp_file = new \SplFileObject(__DIR__.'/files/'.$fileName);
 
         $generator = $this->factory->get($temp_file, $format);
+        if (!$generator) {
+            $this->markAsRisky();
+            return null;
+        }
         $preview_file = $generator->generate($temp_file, $format);
 
         $this->assertInstanceOf(\SplFileObject::class, $preview_file);

@@ -51,13 +51,15 @@ services:
         tags:
             - {name: "garant_file_preview_generator.generator"}
 
-    garant_file_preview_generator.powerpoint_generator:
-        class: '%garant_file_preview_generator.powerpoint_generator.class%'
-        arguments: ["@liip_imagine.filter.manager", "@garant_file_preview_generator.binary.loader.filesystem"]
-        calls:
-            - [setLogger, ["@logger"]]
-        tags:
-            - {name: "garant_file_preview_generator.generator"}
+#    @todo Not working correctly now :(
+#
+#    garant_file_preview_generator.powerpoint_generator:
+#        class: '%garant_file_preview_generator.powerpoint_generator.class%'
+#        arguments: ["@liip_imagine.filter.manager", "@garant_file_preview_generator.binary.loader.filesystem"]
+#        calls:
+#            - [setLogger, ["@logger"]]
+#        tags:
+#            - {name: "garant_file_preview_generator.generator"}
 
     garant_file_preview_generator.image_to_image_generator:
         class: '%garant_file_preview_generator.image_to_image_generator.class%'

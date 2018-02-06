@@ -38,6 +38,11 @@ class Word extends AbstractGeneratorTest
         $this->generate('test.docx', AbstractGenerator::PREVIEW_FORMAT_HTML);
     }
 
+    public function testHTMLToDocx()
+    {
+        $this->generate('test.html', AbstractGenerator::PREVIEW_FORMAT_MS_WORD);
+    }
+
     public function testRTFToHTML()
     {
         $this->generate('test.rtf', AbstractGenerator::PREVIEW_FORMAT_HTML);

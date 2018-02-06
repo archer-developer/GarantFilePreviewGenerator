@@ -19,11 +19,12 @@ use Symfony\Component\Process\Process;
  */
 abstract class AbstractGenerator
 {
-    const PREVIEW_FORMAT_JPEG = 'jpeg';
-    const PREVIEW_FORMAT_PNG = 'png';
-    const PREVIEW_FORMAT_PDF = 'pdf';
-    const PREVIEW_FORMAT_HTML = 'html';
-    const PREVIEW_FORMAT_TEXT = 'txt';
+    const PREVIEW_FORMAT_JPEG    = 'jpeg';
+    const PREVIEW_FORMAT_PNG     = 'png';
+    const PREVIEW_FORMAT_PDF     = 'pdf';
+    const PREVIEW_FORMAT_HTML    = 'html';
+    const PREVIEW_FORMAT_TEXT    = 'txt';
+    const PREVIEW_FORMAT_MS_WORD = 'docx';
 
     // Skip to pdf converting
     const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'tif'];
