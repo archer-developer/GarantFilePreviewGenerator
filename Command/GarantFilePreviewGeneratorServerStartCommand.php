@@ -88,7 +88,7 @@ class GarantFilePreviewGeneratorServerStartCommand extends ContainerAwareCommand
                         }
 
                         // Generate temp name to store file body
-                        $tmp_name = $this->getContainer()->getParameter('kernel.cache_dir').'/preview_attachment_'.$this->server;
+                        $tmp_name = $this->getContainer()->getParameter('kernel.cache_dir').'/preview_attachment_'.time();
                         if (isset($body['file_name'])) {
                             $this->logger->debug($body['file_name']);
 
